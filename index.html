@@ -503,27 +503,46 @@
 
         let lastActiveId = "";
 
+        // Refined Logic: Highlight based on most visible section in center of viewport
         function updateNavState() {
             let current = "";
-            const scrollPos = window.pageYOffset;
+            const viewportHeight = window.innerHeight;
+            const centerOfScreen = viewportHeight / 2;
             
-            if (scrollPos < 100) {
-                current = "home";
-            } else {
-                sections.forEach((section) => {
-                    if (scrollPos >= section.offsetTop - 300) {
-                        current = section.getAttribute("id");
-                    }
-                });
-            }
+            let maxVisibleHeight = 0;
 
-            if (current !== lastActiveId) {
+            sections.forEach((section) => {
+                const rect = section.getBoundingClientRect();
+                
+                // Calculate how much of this section is visible in the viewport
+                const visibleHeight = Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
+                
+                // We pick the section that covers the most of the viewport
+                if (visibleHeight > maxVisibleHeight) {
+                    maxVisibleHeight = visibleHeight;
+                    current = section.getAttribute("id");
+                }
+                
+                // Override for the very top (Hero section)
+                if (window.scrollY < 100) {
+                    current = "home";
+                }
+                
+                // Override for the very bottom (Footer/About)
+                if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 50) {
+                    current = "about";
+                }
+            });
+
+            if (current && current !== lastActiveId) {
                 lastActiveId = current;
                 navItems.forEach((li) => {
                     const href = li.getAttribute("href").substring(1);
                     if (href === current) {
                         li.classList.add("text-brand", "bg-white/10", "px-6");
                         li.classList.remove("text-white/50");
+                        
+                        // Ensure the highlighted nav item is visible in the scrollable nav bar
                         li.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                     } else {
                         li.classList.remove("text-brand", "bg-white/10", "px-6");
@@ -561,15 +580,11 @@
             }, 1200);
         });
 
-        // RE-TRIGGERING ANIMATION LOGIC
         const fluxObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                // If it enters view, add class. 
-                // If it leaves view, remove class so it can re-animate later.
                 if (entry.isIntersecting) {
                     entry.target.classList.add('in-view');
                 } else {
-                    // Only remove if it's outside a safe buffer to prevent flickering
                     if (entry.boundingClientRect.top > window.innerHeight || entry.boundingClientRect.bottom < 0) {
                         entry.target.classList.remove('in-view');
                     }
@@ -577,7 +592,7 @@
             });
         }, { 
             threshold: 0.1,
-            rootMargin: '50px' // Pre-load animation slightly before it's on screen
+            rootMargin: '50px' 
         });
 
         document.querySelectorAll('.flux').forEach(el => fluxObserver.observe(el));
@@ -587,7 +602,7 @@
             window.clearTimeout(isScrolling);
             isScrolling = setTimeout(() => {
                 updateNavState();
-            }, 50);
+            }, 10); // Low timeout for high responsiveness
         });
     </script>
 </body>
