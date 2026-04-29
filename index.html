@@ -203,7 +203,6 @@
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
         }
 
-        /* Deep Cinematic Blending Masks */
         .video-blend-left {
             mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 15%, black 45%, black 100%);
             -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 15%, black 45%, black 100%);
@@ -219,7 +218,6 @@
             margin-right: -50vw;
         }
 
-        /* Video UI Clean-up Class */
         .cinematic-video-container {
             position: relative;
             overflow: hidden;
@@ -254,6 +252,11 @@
             transform: translateY(0);
         }
 
+        /* Essential for smooth menu transitions */
+        .nav-item {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
         .code-syntax-keyword { color: #C678DD; }
         .code-syntax-func { color: #61AFEF; }
         .code-syntax-str { color: #98C379; }
@@ -262,17 +265,14 @@
 </head>
 <body class="antialiased relative selection:bg-brand selection:text-white">
 
-    <!-- Background Layers -->
     <div class="bg-mesh"></div>
     <div class="dot-grid-overlay"></div>
     <div id="cursor-glow"></div>
 
-    <!-- Minimalist Custom Cursor -->
     <div id="custom-cursor">
         <span>[</span>&nbsp;ENTER&nbsp;<span>]</span>
     </div>
 
-    <!-- Cinematic Intro -->
     <div id="intro-screen">
         <div id="intro-text" class="text-center px-6">
             <h1 class="text-xs md:text-sm font-mono tracking-[0.6em] text-white/40 uppercase mb-4">
@@ -301,7 +301,6 @@
         </nav>
     </div>
 
-    <!-- FULL SCREEN REEL -->
     <section id="home" class="video-fullscreen flux z-20 group">
         <div class="absolute inset-0 bg-gradient-to-b from-dark via-transparent to-dark z-10 pointer-events-none"></div>
         <div class="w-full h-full glass-panel overflow-hidden border-none rounded-none relative">
@@ -326,7 +325,6 @@
 
     <main class="relative z-30 px-6 md:px-24 mx-auto max-w-[1440px]">
         
-        <!-- HYBRID MODEL STRATEGY -->
         <section id="comfy-workflow" class="py-40 relative">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                 <div class="lg:col-span-6 flux">
@@ -362,33 +360,30 @@
                 </div>
                 
                 <div class="lg:col-span-6 flux delay-300">
-                    <div class="relative group">
-                        <div class="absolute -inset-10 bg-brand/10 blur-[100px] rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-1000"></div>
-                        <div class="glass-panel p-8 rounded-[2rem] border-white/10 relative overflow-hidden aspect-video flex flex-col justify-center items-center">
-                             <div class="flex items-center gap-8 mb-4">
-                                <div class="text-center">
-                                    <div class="w-16 h-16 rounded-xl border border-brand/40 bg-brand/5 flex items-center justify-center mb-2">
-                                        <i class="ph ph-fingerprint text-brand text-2xl"></i>
-                                    </div>
-                                    <span class="font-mono text-[10px] text-white/30 uppercase">Secure</span>
+                    <div class="glass-panel p-8 rounded-[2rem] border-white/10 relative overflow-hidden aspect-video flex flex-col justify-center items-center">
+                         <div class="flex items-center gap-8 mb-4">
+                            <div class="text-center">
+                                <div class="w-16 h-16 rounded-xl border border-brand/40 bg-brand/5 flex items-center justify-center mb-2">
+                                    <i class="ph ph-fingerprint text-brand text-2xl"></i>
                                 </div>
-                                <i class="ph ph-arrow-right text-white/20"></i>
-                                <div class="text-center">
-                                    <div class="w-24 h-24 rounded-2xl border border-white/20 flex items-center justify-center mb-2 bg-white/5">
-                                        <i class="ph ph-intersect-three text-brand text-4xl"></i>
-                                    </div>
-                                    <span class="font-mono text-[10px] text-white/30 uppercase">Hybrid Engine</span>
+                                <span class="font-mono text-[10px] text-white/30 uppercase">Secure</span>
+                            </div>
+                            <i class="ph ph-arrow-right text-white/20"></i>
+                            <div class="text-center">
+                                <div class="w-24 h-24 rounded-2xl border border-white/20 flex items-center justify-center mb-2 bg-white/5">
+                                    <i class="ph ph-intersect-three text-brand text-4xl"></i>
                                 </div>
-                                <i class="ph ph-arrow-right text-white/20"></i>
-                                <div class="text-center">
-                                    <div class="w-16 h-16 rounded-xl border border-brand/40 bg-brand/5 flex items-center justify-center mb-2">
-                                        <i class="ph ph-monitor-play text-brand text-2xl"></i>
-                                    </div>
-                                    <span class="font-mono text-[10px] text-white/30 uppercase">Deliver</span>
+                                <span class="font-mono text-[10px] text-white/30 uppercase">Hybrid Engine</span>
+                            </div>
+                            <i class="ph ph-arrow-right text-white/20"></i>
+                            <div class="text-center">
+                                <div class="w-16 h-16 rounded-xl border border-brand/40 bg-brand/5 flex items-center justify-center mb-2">
+                                    <i class="ph ph-monitor-play text-brand text-2xl"></i>
                                 </div>
-                             </div>
-                             <p class="font-mono text-[10px] text-white/20 tracking-[0.2em] uppercase">Kaleidos Logic // Open Architecture</p>
-                        </div>
+                                <span class="font-mono text-[10px] text-white/30 uppercase">Deliver</span>
+                            </div>
+                         </div>
+                         <p class="font-mono text-[10px] text-white/20 tracking-[0.2em] uppercase">Kaleidos Logic // Open Architecture</p>
                     </div>
                 </div>
             </div>
@@ -402,12 +397,11 @@
                         <span class="text-brand font-mono text-xs mb-4 block reveal-text">
                             <span style="transition-delay: 0.1s">PROCESS_01</span>
                         </span>
-                        <!-- Removed 'italic' class and adjusted leading/spacing -->
                         <h2 class="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-[0.85]">
                             <div class="reveal-text"><span style="transition-delay: 0.2s">AI MODEL</span></div><br/>
                             <div class="reveal-text pb-4"><span class="text-white/20" style="transition-delay: 0.3s">TRAINING</span></div>
                         </h2>
-                        <p class="text-white/50 text-xl leading-relaxed mb-8 max-sm">
+                        <p class="text-white/50 text-xl leading-relaxed mb-8 max-w-sm">
                             Precision-tuned LoRA models maintain proprietary asset security while ensuring brand consistency.
                         </p>
                         <div class="glass-panel p-6 rounded-2xl border-brand/10 max-w-xs">
@@ -428,7 +422,6 @@
             </div>
         </section>
 
-        <!-- CUSTOM TOOLING SECTION -->
         <section id="tools" class="py-40 border-t border-white/5">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
                 <div class="lg:col-span-5 flux">
@@ -472,7 +465,6 @@
             </div>
         </section>
 
-        <!-- 3D FOUNDATION SECTION -->
         <section id="3d" class="py-20 border-t border-white/5 relative overflow-visible">
             <div class="flex flex-col lg:flex-row gap-0 items-center">
                 <div class="lg:w-1/3 flux z-30 flex flex-col items-start w-full lg:-mr-40 pointer-events-none">
@@ -500,7 +492,6 @@
             </div>
         </section>
 
-        <!-- CONTACT -->
         <section id="about" class="py-40 border-t border-white/5 flex flex-col items-center text-center">
             <div class="flux">
                 <h2 class="text-6xl md:text-8xl font-black tracking-tighter mb-12 uppercase shimmer-text">
@@ -571,6 +562,38 @@
         }, { threshold: [0, 0.1, 0.9, 1] });
 
         document.querySelectorAll('.flux').forEach(el => fluxObserver.observe(el));
+
+        // --- IMPROVED SCROLL SPY LOGIC ---
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('section');
+
+        window.addEventListener('scroll', () => {
+            let current = "";
+            
+            sections.forEach((section) => {
+                const rect = section.getBoundingClientRect();
+                // A section is "active" if its top is near the top of the viewport 
+                // OR if it currently occupies the center of the viewport
+                if (rect.top <= 200 && rect.bottom >= 200) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            // Fallback for very top of page
+            if (window.scrollY < 100) {
+                current = "home";
+            }
+
+            navItems.forEach((li) => {
+                li.classList.remove("text-brand", "bg-white/10", "px-6", "text-white");
+                li.classList.add("text-white/50");
+
+                if (li.getAttribute("href") === `#${current}`) {
+                    li.classList.add("text-brand", "bg-white/10", "px-6");
+                    li.classList.remove("text-white/50");
+                }
+            });
+        });
     </script>
 </body>
 </html>
