@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaleidos | Creative Technology Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Outfit:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['Space Grotesk', 'monospace'],
+                    },
+                    colors: {
+                        dark: '#0a0a0c',
+                        surface: 'rgba(255, 255, 255, 0.03)',
+                        brand: '#FF4D00',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        :root { --brand: #FF4D00; }
+        
+        body { 
+            background-color: #0a0a0c; 
+            color: #f1f1f1; 
+            overflow: hidden; 
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            cursor: none;
+        }
+        
+        body.can-scroll {
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+            height: auto;
+            cursor: auto;
+        }
+
+        .bg-mesh {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #0f0f12 0%, #0a0a0c 100%);
+            overflow: hidden;
+        }
+
+        .bg-mesh::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 77, 0, 0.03) 0%, transparent 40%),
+                        radial-gradient(circle at 70% 70%, rgba(100, 100, 255, 0.02) 0%, transparent 40%);
+            animation: mesh-flow 25s ease-in-out infinite alternate;
+        }
+
+        @keyframes mesh-flow {
+            0% { transform: rotate(0deg) scale(1); }
+            100% { transform: rotate(10deg) scale(1.1); }
+        }
+        
+        .dot-grid-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 1; 
+            opacity: 0.35;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 0);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black 30%, transparent 90%);
+        }
+
+        #custom-cursor {
+            position: fixed;
+            top: 0; left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', monospace;
+            font-weight: 500;
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            pointer-events: none;
+            z-index: 2000;
+            color: white;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s;
+            mix-blend-mode: normal;
+        }
+
+        #custom-cursor span {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        #custom-cursor.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #cursor-glow {
+            position: fixed; top: 0; left: 0; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(255,77,0,0.08) 0%, rgba(255,77,0,0) 70%);
+            border-radius: 50%; transform: translate(-50%, -50%);
+            pointer-events: none; z-index: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #intro-screen {
+            position: fixed;
+            inset: 0;
+            background: #0a0a0c;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        #intro-text {
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+            filter: blur(20px);
+            opacity: 0;
+            transform: scale(0.9);
+            pointer-events: none;
+        }
+
+        #intro-text.visible {
+            filter: blur(0px);
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* RE-ANIMATING FLUX SYSTEM */
+        .flux {
+            opacity: 0;
+            filter: blur(20px);
+            transform: translateY(60px) scale(0.95);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity, filter;
+        }
+
+        .flux.in-view {
+            opacity: 1;
+            filter: blur(0px);
+            transform: translateY(0) scale(1);
+        }
+
+        .glass-slide-right {
+            transform: translateX(-40px);
+            opacity: 0;
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-slide-left {
+            transform: translateX(40px);
+            opacity: 0;
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .in-view .glass-slide-right, 
+        .in-view .glass-slide-left {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .reveal-text {
+            display: inline-block;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        }
+
+        .reveal-text span {
+            display: inline-block;
+            transform: translateY(100%);
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .in-view .reveal-text span {
+            transform: translateY(0%);
+        }
+
+        .shimmer-text {
+            background: linear-gradient(
+                90deg, 
+                rgba(255,255,255,1) 0%, 
+                rgba(255,77,0,1) 50%, 
+                rgba(255,255,255,1) 100%
+            );
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.4s ease, background 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(255, 77, 0, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-5px);
+        }
+
+        .video-blend-left {
+            mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 15%, black 45%, black 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 15%, black 45%, black 100%);
+        }
+        
+        .video-blend-right {
+            mask-image: linear-gradient(to left, transparent 0%, rgba(0,0,0,0.1) 15%, black 45%, black 100%);
+            -webkit-mask-image: linear-gradient(to left, transparent 0%, rgba(0,0,0,0.1) 15%, black 45%, black 100%);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        .nav-fixed {
+            position: fixed;
+            top: 24px;
+            left: 0;
+            right: 0;
+            margin-left: auto;
+            margin-right: auto;
+            z-index: 500;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 1s ease;
+        }
+        
+        .nav-fixed.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .code-syntax-keyword { color: #C678DD; }
+        .code-syntax-func { color: #61AFEF; }
+        .code-syntax-str { color: #98C379; }
+        .code-syntax-comment { color: #5C6370; font-style: italic; }
+    </style>
+</head>
+<body class="antialiased relative selection:bg-brand selection:text-white">
+
+    <div class="bg-mesh"></div>
+    <div class="dot-grid-overlay"></div>
+    <div id="cursor-glow"></div>
+
+    <div id="custom-cursor">
+        <span>[</span>&nbsp;ENTER&nbsp;<span>]</span>
+    </div>
+
+    <!-- Cinematic Intro -->
+    <div id="intro-screen">
+        <div id="intro-text" class="text-center px-6">
+            <h1 class="text-xs md:text-sm font-mono tracking-[0.6em] text-white/40 uppercase mb-4">
+                ENGINEERING CINEMATIC AI
+            </h1>
+            <div class="relative py-4 px-12 glass-panel border-white/10 rounded-2xl">
+                <span class="text-6xl md:text-9xl font-black tracking-[-0.05em] uppercase shimmer-text block">
+                    KALEIDOS
+                </span>
+            </div>
+            <div class="mt-12 opacity-20 font-mono text-[10px] tracking-[0.4em] uppercase pointer-events-none">Explore Workflow</div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-fixed w-[90%] max-w-2xl px-4" id="main-nav">
+        <nav id="nav-scroll-container" class="glass-panel rounded-full px-2 py-2 flex items-center justify-between overflow-x-auto no-scrollbar shadow-2xl scroll-smooth">
+            <div class="flex items-center gap-1 sm:gap-2 px-2 text-sm sm:text-base font-mono w-full justify-between min-w-max">
+                <a href="#home" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50 whitespace-nowrap">Showreel</a>
+                <a href="#comfy-workflow" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50 whitespace-nowrap">Architecture</a>
+                <a href="#lora" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50 whitespace-nowrap">Training</a>
+                <a href="#tools" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50 whitespace-nowrap">Custom Nodes</a>
+                <a href="#3d" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50 whitespace-nowrap">Production</a>
+                <a href="#about" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50 whitespace-nowrap">Inquire</a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- FULL SCREEN REEL -->
+    <section id="home" class="w-full h-screen relative flux z-20 group">
+        <div class="absolute inset-0 bg-gradient-to-b from-dark via-transparent to-dark z-10 pointer-events-none"></div>
+        <div class="w-full h-full glass-panel overflow-hidden border-none rounded-none relative">
+            <iframe 
+                id="hero-video"
+                class="w-full h-[120%] -translate-y-[10%] pointer-events-none"
+                src="https://www.youtube.com/embed/yM-_Xojn5Hs?autoplay=1&mute=1&loop=1&playlist=yM-_Xojn5Hs&controls=0&modestbranding=1&rel=0&enablejsapi=1" 
+                title="Kaleidos Production Reel" 
+                allow="autoplay; fullscreen">
+            </iframe>
+            
+            <div class="absolute bottom-12 left-12 z-20 hidden md:block flux delay-700">
+                <p class="font-mono text-brand text-xs tracking-widest mb-2 uppercase reveal-text">
+                    <span style="transition-delay: 0.1s">EST. 2026</span>
+                </p>
+                <h3 class="text-6xl font-black tracking-tighter uppercase shimmer-text">
+                    KALEIDOS
+                </h3>
+            </div>
+        </div>
+    </section>
+
+    <main class="relative z-30 px-6 md:px-24 mx-auto max-w-[1440px]">
+        
+        <!-- HYBRID MODEL STRATEGY -->
+        <section id="comfy-workflow" class="py-40 relative">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-6 flux">
+                    <span class="text-brand font-mono text-xs mb-4 block reveal-text">
+                        <span style="transition-delay: 0.1s">PIPELINE_ARCHITECTURE</span>
+                    </span>
+                    <h2 class="text-5xl md:text-6xl font-black mb-8 tracking-tighter leading-tight">
+                        <div class="reveal-text"><span style="transition-delay: 0.2s">ADAPTIVE</span></div><br/>
+                        <div class="reveal-text"><span class="text-white/20" style="transition-delay: 0.3s">AI STRATEGY</span></div>
+                    </h2>
+                    <p class="text-white/60 text-xl leading-relaxed mb-8">
+                        Modern production requires a precise balance of speed, security, and high-fidelity output.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-6 glass-panel rounded-2xl border-white/5 glass-slide-right delay-100">
+                            <h4 class="font-bold text-white mb-2 flex items-center gap-2">
+                                <i class="ph ph-lock text-brand"></i> Open Source
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">Deployed for projects requiring strict data protection and brand control.</p>
+                        </div>
+                        <div class="p-6 glass-panel rounded-2xl border-white/5 glass-slide-right delay-200">
+                            <h4 class="font-bold text-white mb-2 flex items-center gap-2">
+                                <i class="ph ph-lightning text-brand"></i> Closed Source
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">Integrated for industry-leading cinematic motion and rapid conceptualization.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lg:col-span-6 flux delay-300 relative">
+                    <div class="relative group glass-slide-left">
+                        <div class="absolute -inset-10 bg-brand/10 blur-[100px] rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-1000"></div>
+                        <div class="glass-panel p-8 rounded-[2rem] border-white/10 relative overflow-hidden aspect-video flex flex-col justify-center items-center">
+                             <div class="flex items-center gap-8 mb-4">
+                                <div class="text-center">
+                                    <div class="w-16 h-16 rounded-xl border border-brand/40 bg-brand/5 flex items-center justify-center mb-2">
+                                        <i class="ph ph-fingerprint text-brand text-2xl"></i>
+                                    </div>
+                                    <span class="font-mono text-[10px] text-white/30 uppercase">Secure</span>
+                                </div>
+                                <i class="ph ph-arrow-right text-white/20"></i>
+                                <div class="text-center">
+                                    <div class="w-24 h-24 rounded-2xl border border-white/20 flex items-center justify-center mb-2 bg-white/5">
+                                        <i class="ph ph-intersect-three text-brand text-4xl"></i>
+                                    </div>
+                                    <span class="font-mono text-[10px] text-white/30 uppercase">Hybrid Engine</span>
+                                </div>
+                                <i class="ph ph-arrow-right text-white/20"></i>
+                                <div class="text-center">
+                                    <div class="w-16 h-16 rounded-xl border border-brand/40 bg-brand/5 flex items-center justify-center mb-2">
+                                        <i class="ph ph-monitor-play text-brand text-2xl"></i>
+                                    </div>
+                                    <span class="font-mono text-[10px] text-white/30 uppercase">Deliver</span>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LORA SECTION -->
+        <section id="lora" class="py-20 relative border-t border-white/5">
+            <div class="flex flex-col lg:flex-row gap-0 items-center">
+                <div class="lg:w-1/3 flux z-20 lg:-mr-32">
+                    <h2 class="text-5xl md:text-7xl font-black mb-8 italic tracking-tighter leading-none">
+                        <div class="reveal-text"><span style="transition-delay: 0.2s">AI MODEL</span></div><br/>
+                        <div class="reveal-text"><span class="text-white/20" style="transition-delay: 0.3s">TRAINING</span></div>
+                    </h2>
+                    <div class="glass-panel p-6 rounded-2xl border-brand/10 max-w-xs glass-slide-right">
+                        <div class="flex items-center gap-4 text-brand mb-2">
+                            <i class="ph-fill ph-fast-forward text-2xl"></i>
+                            <span class="font-mono text-sm">BRAND CONSISTENCY</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:w-2/3 flux delay-200 z-10 w-full">
+                    <div class="relative video-blend-left glass-slide-left">
+                        <div class="aspect-[21/9] lg:aspect-[16/7] w-full overflow-hidden rounded-[2rem] lg:rounded-r-none">
+                            <iframe class="w-full h-full scale-[1.05]" src="https://www.youtube.com/embed/todJzDq3X2o?rel=0&autoplay=1&mute=1&loop=1&playlist=todJzDq3X2o&controls=0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CUSTOM TOOLING SECTION -->
+        <section id="tools" class="py-40 border-t border-white/5 relative">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+                <div class="lg:col-span-5 flux">
+                    <h2 class="text-5xl md:text-6xl font-black mb-8 tracking-tighter leading-none">
+                        <div class="reveal-text"><span style="transition-delay: 0.2s">CUSTOM</span></div><br/>
+                        <div class="reveal-text"><span class="text-white/20" style="transition-delay: 0.3s">TOOLING</span></div>
+                    </h2>
+                    <div class="space-y-6 mb-10">
+                        <div class="flex items-start gap-4 p-4 glass-panel rounded-xl border-white/5 glass-slide-right delay-100">
+                            <div class="w-10 h-10 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center shrink-0">
+                                <i class="ph ph-brackets-square text-brand"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold">Selective Batching</h4>
+                                <p class="text-sm text-white/40">Advanced logic for routing latents across frames.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="https://github.com/FugitiveExpert01/ComfyUI-FEnodes" target="_blank" class="group relative inline-flex items-center gap-4 px-8 py-5 bg-white text-black font-black rounded-full overflow-hidden transition-all glass-slide-right delay-300">
+                        <div class="absolute inset-0 bg-brand translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        <i class="ph ph-github-logo text-2xl relative z-10 group-hover:text-white"></i>
+                        <span class="relative z-10 group-hover:text-white uppercase tracking-tight">Access Node Library</span>
+                    </a>
+                </div>
+
+                <div class="lg:col-span-7 flux delay-300">
+                    <div class="glass-panel rounded-2xl border-white/10 overflow-hidden shadow-2xl scale-105 lg:scale-110 origin-top-left glass-slide-left">
+                        <div class="bg-white/5 px-4 py-3 border-b border-white/5 flex items-center justify-between">
+                            <div class="text-[10px] font-mono text-white/20 tracking-widest uppercase">logic_engine.py</div>
+                        </div>
+                        <div class="p-6 font-mono text-sm leading-relaxed bg-[#08080a]">
+<pre><code><span class="code-syntax-keyword">class</span> <span class="code-syntax-func">KaleidosBatchRouter</span>:
+    <span class="code-syntax-comment"># Logic for selective batch processing</span>
+    <span class="code-syntax-keyword">def</span> <span class="code-syntax-func">route_batch</span>(<span class="code-syntax-keyword">self</span>, latents, indices):
+        batch_size = latents[<span class="code-syntax-str">"samples"</span>].shape[0]
+        <span class="code-syntax-keyword">return</span> (<span class="code-syntax-keyword">self</span>.filter_tensors(latents, indices),)</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3D FOUNDATION SECTION -->
+        <section id="3d" class="py-20 border-t border-white/5 relative">
+            <div class="flex flex-col lg:flex-row-reverse gap-0 items-center">
+                <div class="lg:w-1/3 flux z-20 lg:-mr-32 flex flex-col items-end text-right w-full">
+                    <h2 class="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none w-full text-right">
+                        <div class="reveal-text w-full text-right"><span class="w-full" style="transition-delay: 0.2s">THE 3D</span></div><br/>
+                        <div class="reveal-text w-full text-right"><span class="text-white/20 w-full" style="transition-delay: 0.3s">FOUNDATION</span></div>
+                    </h2>
+                    <div class="flex items-center gap-3 p-4 glass-panel rounded-xl border-white/5 glass-slide-left">
+                        <span class="text-sm font-medium text-white/80">Real-world simulation</span>
+                        <i class="ph ph-check-circle text-brand text-xl"></i>
+                    </div>
+                </div>
+                <div class="lg:w-2/3 flux delay-200 z-10 w-full">
+                    <div class="relative video-blend-right glass-slide-right">
+                        <div class="aspect-[21/9] lg:aspect-[16/7] w-full overflow-hidden rounded-[2rem] lg:rounded-l-none">
+                            <iframe class="w-full h-full scale-[1.05]" src="https://www.youtube.com/embed/ZeGuxfzULwI?rel=0&autoplay=1&mute=1&loop=1&playlist=ZeGuxfzULwI&controls=0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT -->
+        <section id="about" class="py-40 border-t border-white/5 flex flex-col items-center text-center relative">
+            <div class="flux">
+                <h2 class="text-6xl md:text-8xl font-black tracking-tighter mb-12 uppercase shimmer-text">LET'S CREATE.</h2>
+                <div class="flex flex-wrap justify-center gap-6 glass-slide-right">
+                    <a href="mailto:hello@kaleidos.ai" class="px-10 py-5 rounded-full bg-brand text-white font-bold text-xl">Inquire Today</a>
+                </div>
+            </div>
+            
+            <footer class="mt-40 opacity-20 font-mono text-xs tracking-widest uppercase">
+                Kaleidos &copy; 2026 // Creative Technology Studio
+            </footer>
+        </section>
+    </main>
+
+    <script>
+        const introText = document.getElementById('intro-text');
+        const introScreen = document.getElementById('intro-screen');
+        const customCursor = document.getElementById('custom-cursor');
+        const glow = document.getElementById('cursor-glow');
+        const nav = document.getElementById('main-nav');
+        const body = document.body;
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('section');
+
+        let lastActiveId = "";
+
+        function updateNavState() {
+            let current = "";
+            const scrollPos = window.pageYOffset;
+            
+            if (scrollPos < 100) {
+                current = "home";
+            } else {
+                sections.forEach((section) => {
+                    if (scrollPos >= section.offsetTop - 300) {
+                        current = section.getAttribute("id");
+                    }
+                });
+            }
+
+            if (current !== lastActiveId) {
+                lastActiveId = current;
+                navItems.forEach((li) => {
+                    const href = li.getAttribute("href").substring(1);
+                    if (href === current) {
+                        li.classList.add("text-brand", "bg-white/10", "px-6");
+                        li.classList.remove("text-white/50");
+                        li.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    } else {
+                        li.classList.remove("text-brand", "bg-white/10", "px-6");
+                        li.classList.add("text-white/50");
+                    }
+                });
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => introText.classList.add('visible'), 500);
+            updateNavState();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            requestAnimationFrame(() => {
+                glow.style.left = `${e.clientX}px`;
+                glow.style.top = `${e.clientY}px`;
+                customCursor.style.left = `${e.clientX}px`;
+                customCursor.style.top = `${e.clientY}px`;
+                if (!body.classList.contains('can-scroll')) customCursor.classList.add('active');
+                else customCursor.classList.remove('active');
+            });
+        });
+
+        introScreen.addEventListener('click', () => {
+            introScreen.style.opacity = '0';
+            introScreen.style.transform = 'scale(1.1)';
+            nav.classList.add('visible');
+            body.classList.add('can-scroll');
+            setTimeout(() => {
+                introScreen.style.display = 'none';
+                customCursor.style.display = 'none';
+                updateNavState();
+            }, 1200);
+        });
+
+        // RE-TRIGGERING ANIMATION LOGIC
+        const fluxObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // If it enters view, add class. 
+                // If it leaves view, remove class so it can re-animate later.
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                } else {
+                    // Only remove if it's outside a safe buffer to prevent flickering
+                    if (entry.boundingClientRect.top > window.innerHeight || entry.boundingClientRect.bottom < 0) {
+                        entry.target.classList.remove('in-view');
+                    }
+                }
+            });
+        }, { 
+            threshold: 0.1,
+            rootMargin: '50px' // Pre-load animation slightly before it's on screen
+        });
+
+        document.querySelectorAll('.flux').forEach(el => fluxObserver.observe(el));
+        
+        let isScrolling;
+        window.addEventListener('scroll', () => {
+            window.clearTimeout(isScrolling);
+            isScrolling = setTimeout(() => {
+                updateNavState();
+            }, 50);
+        });
+    </script>
+</body>
+</html>
