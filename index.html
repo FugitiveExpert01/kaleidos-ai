@@ -734,12 +734,19 @@
 
         const fluxObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
+                // If it intersects, show it
                 if (entry.isIntersecting) {
                     entry.target.classList.add('in-view');
                     entry.target.classList.remove('out-view-top');
-                } else if (entry.boundingClientRect.top < 0) {
+                } else {
+                    // If it leaves the view, reset it
                     entry.target.classList.remove('in-view');
-                    entry.target.classList.add('out-view-top');
+                    // Check if it exited from the top or the bottom
+                    if (entry.boundingClientRect.top < 0) {
+                        entry.target.classList.add('out-view-top');
+                    } else {
+                        entry.target.classList.remove('out-view-top');
+                    }
                 }
             });
         }, { threshold: [0, 0.1, 0.9, 1] });
