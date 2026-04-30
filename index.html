@@ -81,7 +81,7 @@
         #custom-cursor {
             position: fixed;
             top: 0; left: 0;
-            display: flex;
+            display: none; 
             align-items: center;
             justify-content: center;
             font-family: 'Space Grotesk', monospace;
@@ -195,6 +195,15 @@
             to { background-position: 200% center; }
         }
 
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        .animate-pulse-slow {
+            animation: pulse-soft 3s ease-in-out infinite;
+        }
+
         .glass-panel {
             background: rgba(255, 255, 255, 0.02);
             backdrop-filter: blur(20px);
@@ -208,19 +217,40 @@
             -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 15%, black 45%, black 100%);
         }
         
-        .video-fullscreen {
-            width: 100vw;
+        .hero-container {
+            width: 100%;
             height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        @media (min-width: 768px) {
+            .hero-container { padding: 2rem; }
+        }
+
+        .hero-frame {
             position: relative;
-            left: 50%;
-            right: 50%;
-            margin-left: -50vw;
-            margin-right: -50vw;
+            width: 100%;
+            max-width: 1280px; 
+            aspect-ratio: 9/16; 
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 0 100px rgba(0,0,0,0.8), 0 0 40px rgba(255,77,0,0.05);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        @media (min-width: 768px) {
+            .hero-frame { 
+                aspect-ratio: 16/9; 
+                border-radius: 2rem;
+            }
         }
 
         .cinematic-video-container {
             position: relative;
             overflow: hidden;
+            height: 100%;
+            width: 100%;
         }
         .cinematic-video-container iframe {
             position: absolute;
@@ -228,33 +258,50 @@
             left: 50%;
             width: 100%;
             height: 100%;
-            transform: translate(-50%, -50%) scale(1.3);
+            transform: translate(-50%, -50%) scale(1.5);
             pointer-events: none;
+        }
+        @media (min-width: 768px) {
+            .cinematic-video-container iframe {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
         .nav-fixed {
             position: fixed;
-            top: 24px;
-            left: 0;
-            right: 0;
-            margin-left: auto;
-            margin-right: auto;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            width: 95%;
+            max-width: 700px;
             z-index: 500;
             opacity: 0;
-            transform: translateY(-20px);
             transition: all 1s ease;
+        }
+        @media (min-width: 768px) {
+            .nav-fixed { top: 24px; width: 90%; }
         }
         
         .nav-fixed.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(-50%) translateY(0);
         }
 
-        /* Essential for smooth menu transitions */
+        .nav-scroll-container {
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 0 8px;
+            scrollbar-width: none;
+        }
+
         .nav-item {
+            white-space: nowrap;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-shrink: 0;
         }
 
         .code-syntax-keyword { color: #C678DD; }
@@ -269,7 +316,8 @@
     <div class="dot-grid-overlay"></div>
     <div id="cursor-glow"></div>
 
-    <div id="custom-cursor">
+    <!-- Cursor logic managed via JS for fine pointer devices -->
+    <div id="custom-cursor" class="md:flex">
         <span>[</span>&nbsp;ENTER&nbsp;<span>]</span>
     </div>
 
@@ -283,40 +331,48 @@
                     KALEIDOS
                 </span>
             </div>
-            <div class="mt-12 opacity-20 font-mono text-[10px] tracking-[0.4em] uppercase pointer-events-none">Explore Workflow</div>
+            <!-- Mobile Tap Prompt - Primary CTA for Touch -->
+            <div class="mt-12 md:hidden animate-pulse-slow">
+                <p class="font-mono text-[10px] tracking-[0.5em] text-brand uppercase">Tap to Enter</p>
+            </div>
+            <!-- Desktop Info -->
+            <div class="mt-12 hidden md:block opacity-20 font-mono text-[10px] tracking-[0.4em] uppercase pointer-events-none">Explore Workflow</div>
         </div>
     </div>
 
     <!-- Navigation -->
-    <div class="nav-fixed w-[90%] max-w-2xl px-4" id="main-nav">
-        <nav class="glass-panel rounded-full px-2 py-2 flex items-center justify-between overflow-x-auto no-scrollbar shadow-2xl">
-            <div class="flex items-center gap-1 sm:gap-2 px-2 text-sm sm:text-base font-mono w-full justify-between min-w-max">
-                <a href="#home" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50">Showreel</a>
-                <a href="#comfy-workflow" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50">Architecture</a>
-                <a href="#lora" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50">Training</a>
-                <a href="#tools" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50">Custom Nodes</a>
-                <a href="#3d" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50">Production</a>
-                <a href="#about" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50">Inquire</a>
+    <div class="nav-fixed" id="main-nav">
+        <nav class="glass-panel rounded-full py-2 shadow-2xl">
+            <div class="nav-scroll-container no-scrollbar" id="nav-scroll">
+                <a href="#home" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50 text-sm font-mono">Showreel</a>
+                <a href="#comfy-workflow" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50 text-sm font-mono">Architecture</a>
+                <a href="#lora" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50 text-sm font-mono">Training</a>
+                <a href="#tools" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50 text-sm font-mono">Custom Nodes</a>
+                <a href="#3d" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50 text-sm font-mono">Production</a>
+                <a href="#about" class="nav-item px-4 py-2 rounded-full hover:text-brand transition-all text-white/50 text-sm font-mono">Inquiry</a>
             </div>
         </nav>
     </div>
 
-    <section id="home" class="video-fullscreen flux z-20 group">
-        <div class="absolute inset-0 bg-gradient-to-b from-dark via-transparent to-dark z-10 pointer-events-none"></div>
-        <div class="w-full h-full glass-panel overflow-hidden border-none rounded-none relative">
-            <iframe 
-                id="hero-video"
-                class="w-full h-[140%] -translate-y-[15%] pointer-events-none scale-125"
-                src="https://www.youtube.com/embed/yM-_Xojn5Hs?autoplay=1&mute=1&loop=1&playlist=yM-_Xojn5Hs&controls=0&modestbranding=1&rel=0&enablejsapi=1&showinfo=0" 
-                title="Kaleidos Production Reel" 
-                allow="autoplay; fullscreen">
-            </iframe>
+    <!-- HERO SECTION -->
+    <section id="home" class="hero-container flux z-20 group">
+        <div class="hero-frame">
+            <div class="absolute inset-0 bg-gradient-to-b from-dark/20 via-transparent to-dark/40 z-10 pointer-events-none"></div>
+            <div class="cinematic-video-container">
+                <iframe 
+                    id="hero-video"
+                    class="w-full h-full pointer-events-none"
+                    src="https://www.youtube.com/embed/yM-_Xojn5Hs?autoplay=1&mute=1&loop=1&playlist=yM-_Xojn5Hs&controls=0&modestbranding=1&rel=0&enablejsapi=1&showinfo=0&vq=hd1080" 
+                    title="Kaleidos Production Reel" 
+                    allow="autoplay; fullscreen">
+                </iframe>
+            </div>
             
-            <div class="absolute bottom-12 left-12 z-20 hidden md:block flux delay-700">
-                <p class="font-mono text-brand text-xs tracking-widest mb-2 uppercase reveal-text">
+            <div class="absolute bottom-8 left-8 z-20 hidden md:block flux delay-700">
+                <p class="font-mono text-brand text-[10px] tracking-widest mb-1 uppercase reveal-text">
                     <span style="transition-delay: 0.1s">EST. 2026</span>
                 </p>
-                <h3 class="text-6xl font-black tracking-tighter uppercase shimmer-text">
+                <h3 class="text-4xl font-black tracking-tighter uppercase shimmer-text">
                     KALEIDOS
                 </h3>
             </div>
@@ -389,7 +445,7 @@
             </div>
         </section>
 
-        <!-- LoRA SECTION - UN-ITALICIZED -->
+        <!-- LoRA SECTION -->
         <section id="lora" class="py-20 relative border-t border-white/5 overflow-visible">
             <div class="flex flex-col lg:flex-row gap-0 items-center">
                 <div class="lg:w-1/3 flux z-30 flex flex-col items-start w-full lg:-mr-40 pointer-events-none">
@@ -414,8 +470,8 @@
                 </div>
                 <div class="lg:w-2/3 flux delay-200 z-10 w-full">
                     <div class="relative video-blend-left">
-                        <div class="aspect-[21/9] lg:aspect-[16/7] w-full cinematic-video-container rounded-[2rem] lg:rounded-r-none">
-                            <iframe src="https://www.youtube.com/embed/todJzDq3X2o?rel=0&autoplay=1&mute=1&loop=1&playlist=todJzDq3X2o&controls=0&modestbranding=1&showinfo=0&iv_load_policy=3" allowfullscreen></iframe>
+                        <div class="aspect-[21/9] lg:aspect-[16/7] w-full cinematic-video-container rounded-[1.5rem] lg:rounded-[2rem] lg:rounded-r-none">
+                            <iframe src="https://www.youtube.com/embed/todJzDq3X2o?rel=0&autoplay=1&mute=1&loop=1&playlist=todJzDq3X2o&controls=0&modestbranding=1&showinfo=0&iv_load_policy=3&vq=hd1080" allowfullscreen></iframe>
                         </div>
                     </div>
                 </div>
@@ -484,8 +540,8 @@
 
                 <div class="lg:w-2/3 flux delay-200 z-10 w-full">
                     <div class="relative video-blend-left">
-                        <div class="aspect-[21/9] lg:aspect-[16/7] w-full cinematic-video-container rounded-[2rem] lg:rounded-r-none">
-                            <iframe src="https://www.youtube.com/embed/ZeGuxfzULwI?rel=0&autoplay=1&mute=1&loop=1&playlist=ZeGuxfzULwI&controls=0&modestbranding=1&showinfo=0&iv_load_policy=3" allowfullscreen></iframe>
+                        <div class="aspect-[21/9] lg:aspect-[16/7] w-full cinematic-video-container rounded-[1.5rem] lg:rounded-[2rem] lg:rounded-r-none">
+                            <iframe src="https://www.youtube.com/embed/ZeGuxfzULwI?rel=0&autoplay=1&mute=1&loop=1&playlist=ZeGuxfzULwI&controls=0&modestbranding=1&showinfo=0&iv_load_policy=3&vq=hd1080" allowfullscreen></iframe>
                         </div>
                     </div>
                 </div>
@@ -513,9 +569,20 @@
         const customCursor = document.getElementById('custom-cursor');
         const glow = document.getElementById('cursor-glow');
         const nav = document.getElementById('main-nav');
+        const navScroll = document.getElementById('nav-scroll');
         const body = document.body;
 
+        // Initialize display based on device type
+        const isPointerDevice = window.matchMedia("(pointer: fine)").matches;
+
         window.addEventListener('DOMContentLoaded', () => {
+            if (isPointerDevice) {
+                customCursor.style.display = 'flex';
+                // Cursor starts inactive (invisible/scaled) until first movement
+            } else {
+                customCursor.style.display = 'none';
+            }
+            
             setTimeout(() => {
                 introText.classList.add('visible');
             }, 500);
@@ -524,15 +591,21 @@
         document.addEventListener('mousemove', (e) => {
             const x = e.clientX;
             const y = e.clientY;
+            
             requestAnimationFrame(() => {
                 glow.style.left = `${x}px`;
                 glow.style.top = `${y}px`;
-                customCursor.style.left = `${x}px`;
-                customCursor.style.top = `${y}px`;
-                if (!body.classList.contains('can-scroll')) {
-                    customCursor.classList.add('active');
-                } else {
-                    customCursor.classList.remove('active');
+                
+                if (isPointerDevice) {
+                    customCursor.style.left = `${x}px`;
+                    customCursor.style.top = `${y}px`;
+                    
+                    // Show cursor only during intro phase
+                    if (!body.classList.contains('can-scroll')) {
+                        customCursor.classList.add('active');
+                    } else {
+                        customCursor.classList.remove('active');
+                    }
                 }
             });
         });
@@ -540,12 +613,18 @@
         introScreen.addEventListener('click', () => {
             introScreen.style.opacity = '0';
             introScreen.style.transform = 'scale(1.1)';
-            customCursor.style.opacity = '0';
+            
+            // Hide custom cursor and glow during transition
+            customCursor.classList.remove('active');
+            glow.style.opacity = '0';
+            
             nav.classList.add('visible');
             body.classList.add('can-scroll');
+            
             setTimeout(() => {
                 introScreen.style.display = 'none';
                 customCursor.style.display = 'none';
+                glow.style.display = 'none';
             }, 1200);
         });
 
@@ -563,23 +642,27 @@
 
         document.querySelectorAll('.flux').forEach(el => fluxObserver.observe(el));
 
-        // --- IMPROVED SCROLL SPY LOGIC ---
         const navItems = document.querySelectorAll('.nav-item');
         const sections = document.querySelectorAll('section');
 
+        function centerNavItem(activeItem) {
+            if (!activeItem) return;
+            const containerWidth = navScroll.offsetWidth;
+            const itemOffset = activeItem.offsetLeft;
+            const itemWidth = activeItem.offsetWidth;
+            const scrollPos = itemOffset - (containerWidth / 2) + (itemWidth / 2);
+            navScroll.scrollTo({ left: scrollPos, behavior: 'smooth' });
+        }
+
         window.addEventListener('scroll', () => {
             let current = "";
-            
             sections.forEach((section) => {
                 const rect = section.getBoundingClientRect();
-                // A section is "active" if its top is near the top of the viewport 
-                // OR if it currently occupies the center of the viewport
-                if (rect.top <= 200 && rect.bottom >= 200) {
+                if (rect.top <= 300 && rect.bottom >= 300) {
                     current = section.getAttribute("id");
                 }
             });
-
-            // Fallback for very top of page
+            
             if (window.scrollY < 100) {
                 current = "home";
             }
@@ -587,12 +670,16 @@
             navItems.forEach((li) => {
                 li.classList.remove("text-brand", "bg-white/10", "px-6", "text-white");
                 li.classList.add("text-white/50");
-
                 if (li.getAttribute("href") === `#${current}`) {
                     li.classList.add("text-brand", "bg-white/10", "px-6");
                     li.classList.remove("text-white/50");
+                    centerNavItem(li);
                 }
             });
+        });
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => centerNavItem(item));
         });
     </script>
 </body>
