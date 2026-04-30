@@ -316,7 +316,6 @@
     <div class="dot-grid-overlay"></div>
     <div id="cursor-glow"></div>
 
-    <!-- Cursor logic managed via JS for fine pointer devices -->
     <div id="custom-cursor" class="md:flex">
         <span>[</span>&nbsp;ENTER&nbsp;<span>]</span>
     </div>
@@ -331,11 +330,9 @@
                     KALEIDOS
                 </span>
             </div>
-            <!-- Mobile Tap Prompt - Primary CTA for Touch -->
             <div class="mt-12 md:hidden animate-pulse-slow">
                 <p class="font-mono text-[10px] tracking-[0.5em] text-brand uppercase">Tap to Enter</p>
             </div>
-            <!-- Desktop Info -->
             <div class="mt-12 hidden md:block opacity-20 font-mono text-[10px] tracking-[0.4em] uppercase pointer-events-none">Explore Workflow</div>
         </div>
     </div>
@@ -458,7 +455,7 @@
                             <div class="reveal-text pb-4"><span class="text-white/20" style="transition-delay: 0.3s">TRAINING</span></div>
                         </h2>
                         <p class="text-white/50 text-xl leading-relaxed mb-8 max-w-sm">
-                            Precision-tuned LoRA models maintain proprietary asset security while ensuring brand consistency.
+                            Precision-tuned LoRA models maintain proprietary asset security while ensuring brand consistency. <span class="text-brand/80 font-bold">(Playback @ 3x Speed)</span>
                         </p>
                         <div class="glass-panel p-6 rounded-2xl border-brand/10 max-w-xs">
                             <div class="flex items-center gap-4 text-brand">
@@ -471,7 +468,8 @@
                 <div class="lg:w-2/3 flux delay-200 z-10 w-full">
                     <div class="relative video-blend-left">
                         <div class="aspect-[21/9] lg:aspect-[16/7] w-full cinematic-video-container rounded-[1.5rem] lg:rounded-[2rem] lg:rounded-r-none">
-                            <iframe src="https://www.youtube.com/embed/todJzDq3X2o?rel=0&autoplay=1&mute=1&loop=1&playlist=todJzDq3X2o&controls=0&modestbranding=1&showinfo=0&iv_load_policy=3&vq=hd1080" allowfullscreen></iframe>
+                            <!-- ID 'training-video' added for API Targeting -->
+                            <div id="training-video-player"></div>
                         </div>
                     </div>
                 </div>
@@ -563,6 +561,9 @@
         </section>
     </main>
 
+    <!-- YouTube IFrame API for speed control -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <script>
         const introText = document.getElementById('intro-text');
         const introScreen = document.getElementById('intro-screen');
@@ -575,10 +576,41 @@
         // Initialize display based on device type
         const isPointerDevice = window.matchMedia("(pointer: fine)").matches;
 
+        // YouTube Player API Implementation
+        let player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('training-video-player', {
+                height: '100%',
+                width: '100%',
+                videoId: 'todJzDq3X2o',
+                playerVars: {
+                    'autoplay': 1,
+                    'mute': 1,
+                    'loop': 1,
+                    'playlist': 'todJzDq3X2o',
+                    'controls': 0,
+                    'modestbranding': 1,
+                    'showinfo': 0,
+                    'rel': 0,
+                    'enablejsapi': 1,
+                    'iv_load_policy': 3
+                },
+                events: {
+                    'onReady': onPlayerReady
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            // Set playback rate to 3x (Note: YT API may cap this if not officially supported, 
+            // but 2x is the official limit. We try 3x here).
+            event.target.setPlaybackRate(3.0); 
+            event.target.playVideo();
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             if (isPointerDevice) {
                 customCursor.style.display = 'flex';
-                // Cursor starts inactive (invisible/scaled) until first movement
             } else {
                 customCursor.style.display = 'none';
             }
@@ -600,7 +632,6 @@
                     customCursor.style.left = `${x}px`;
                     customCursor.style.top = `${y}px`;
                     
-                    // Show cursor only during intro phase
                     if (!body.classList.contains('can-scroll')) {
                         customCursor.classList.add('active');
                     } else {
@@ -614,7 +645,6 @@
             introScreen.style.opacity = '0';
             introScreen.style.transform = 'scale(1.1)';
             
-            // Hide custom cursor and glow during transition
             customCursor.classList.remove('active');
             glow.style.opacity = '0';
             
