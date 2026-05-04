@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaleidos | Creative Technology Studio</title>
+    <title>Latentiq Studio | Creative Technology Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Outfit:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <script>
+        // Exact Flipped Normals Fuchsia: #FF4AB2
         tailwind.config = {
             theme: {
                 extend: {
@@ -19,14 +20,14 @@
                     colors: {
                         dark: '#0a0a0c',
                         surface: 'rgba(255, 255, 255, 0.03)',
-                        brand: '#FF4D00',
+                        brand: '#FF4AB2', 
                     },
                 }
             }
         }
     </script>
     <style>
-        :root { --brand: #FF4D00; }
+        :root { --brand: #FF4AB2; }
         
         body { 
             background-color: #0a0a0c; 
@@ -58,7 +59,7 @@
             content: '';
             position: absolute;
             top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 77, 0, 0.03) 0%, transparent 40%),
+            background: radial-gradient(circle at 30% 30%, rgba(255, 74, 178, 0.04) 0%, transparent 40%),
                         radial-gradient(circle at 70% 70%, rgba(100, 100, 255, 0.02) 0%, transparent 40%);
             animation: mesh-flow 25s ease-in-out infinite alternate;
         }
@@ -109,7 +110,7 @@
 
         #cursor-glow {
             position: fixed; top: 0; left: 0; width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(255,77,0,0.08) 0%, rgba(255,77,0,0) 70%);
+            background: radial-gradient(circle, rgba(255, 74, 178, 0.1) 0%, rgba(255, 74, 178, 0) 70%);
             border-radius: 50%; transform: translate(-50%, -50%);
             pointer-events: none; z-index: 0;
             transition: opacity 0.5s ease;
@@ -156,15 +157,9 @@
             transform: translateY(0) scale(1) rotateX(0deg);
         }
 
-        .flux.out-view-top {
-            opacity: 0;
-            filter: blur(10px);
-            transform: translateY(-80px) scale(0.95);
-        }
-
         .reveal-text {
             display: inline-block;
-            clip-path: polygon(0 0, 100% 0, 100% 120%, 0 120%);
+            clip-path: polygon(0 0, 100% 0, 100% 150%, 0 150%);
             padding-bottom: 0.1em;
         }
 
@@ -178,30 +173,23 @@
             transform: translateY(0%);
         }
 
+        /* REVERSED SHIMMER: Moving right to left */
         .shimmer-text {
             background: linear-gradient(
                 90deg, 
                 rgba(255,255,255,1) 0%, 
-                rgba(255,77,0,1) 50%, 
+                rgba(255, 74, 178, 1) 50%, 
                 rgba(255,255,255,1) 100%
             );
             background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: shimmer 4s linear infinite;
+            animation: shimmer-reverse 4s linear infinite;
         }
 
-        @keyframes shimmer {
-            to { background-position: 200% center; }
-        }
-
-        @keyframes pulse-soft {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.05); }
-        }
-
-        .animate-pulse-slow {
-            animation: pulse-soft 3s ease-in-out infinite;
+        @keyframes shimmer-reverse {
+            from { background-position: 200% center; }
+            to { background-position: 0% center; }
         }
 
         .glass-panel {
@@ -212,11 +200,7 @@
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
         }
 
-        .video-blend-left {
-            mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 15%, black 45%, black 100%);
-            -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 15%, black 45%, black 100%);
-        }
-        
+        /* Responsive Layouts */
         .hero-container {
             width: 100%;
             height: 100vh;
@@ -236,7 +220,7 @@
             aspect-ratio: 9/16; 
             border-radius: 1.5rem;
             overflow: hidden;
-            box-shadow: 0 0 100px rgba(0,0,0,0.8), 0 0 40px rgba(255,77,0,0.05);
+            box-shadow: 0 0 100px rgba(0,0,0,0.8), 0 0 40px rgba(255, 74, 178, 0.05);
             border: 1px solid rgba(255,255,255,0.05);
         }
         @media (min-width: 768px) {
@@ -267,8 +251,6 @@
             }
         }
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-
         .nav-fixed {
             position: fixed;
             top: 16px;
@@ -279,9 +261,6 @@
             z-index: 500;
             opacity: 0;
             transition: all 1s ease;
-        }
-        @media (min-width: 768px) {
-            .nav-fixed { top: 24px; width: 90%; }
         }
         
         .nav-fixed.visible {
@@ -297,17 +276,13 @@
             padding: 0 8px;
             scrollbar-width: none;
         }
+        .nav-scroll-container::-webkit-scrollbar { display: none; }
 
         .nav-item {
             white-space: nowrap;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             flex-shrink: 0;
         }
-
-        .code-syntax-keyword { color: #C678DD; }
-        .code-syntax-func { color: #61AFEF; }
-        .code-syntax-str { color: #98C379; }
-        .code-syntax-comment { color: #5C6370; font-style: italic; }
 
         /* Audio Visualizer Animation */
         .audio-bar {
@@ -325,6 +300,13 @@
             0%, 100% { transform: scaleY(0.3); }
             50% { transform: scaleY(1); }
         }
+
+        @media (min-width: 768px) {
+            .video-blend-left {
+                mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 15%, black 45%, black 100%);
+                -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.1) 15%, black 45%, black 100%);
+            }
+        }
     </style>
 </head>
 <body class="antialiased relative selection:bg-brand selection:text-white">
@@ -339,18 +321,17 @@
 
     <div id="intro-screen">
         <div id="intro-text" class="text-center px-6">
-            <h1 class="text-xs md:text-sm font-mono tracking-[0.6em] text-white/40 uppercase mb-4">
+            <h1 class="text-xs md:text-sm font-mono tracking-[0.6em] text-white/40 uppercase mb-6">
                 ENGINEERING CINEMATIC AI
             </h1>
-            <div class="relative py-4 px-12 glass-panel border-white/10 rounded-2xl">
-                <span class="text-6xl md:text-9xl font-black tracking-[-0.05em] uppercase shimmer-text block">
-                    KALEIDOS
+            <div class="relative py-8 px-12 glass-panel border-white/10 rounded-[2.5rem] flex items-center justify-center">
+                <span class="text-6xl md:text-8xl font-bold tracking-tighter shimmer-text block font-sans">
+                    Latentiq
                 </span>
             </div>
-            <div class="mt-12 md:hidden animate-pulse-slow">
+            <div class="mt-12 md:hidden animate-pulse">
                 <p class="font-mono text-[10px] tracking-[0.5em] text-brand uppercase">Tap to Enter</p>
             </div>
-            <div class="mt-12 hidden md:block opacity-20 font-mono text-[10px] tracking-[0.4em] uppercase pointer-events-none">Explore Workflow</div>
         </div>
     </div>
 
@@ -373,21 +354,22 @@
         <div class="hero-frame">
             <div class="absolute inset-0 bg-gradient-to-b from-dark/20 via-transparent to-dark/40 z-10 pointer-events-none"></div>
             <div class="cinematic-video-container">
-                <!-- Using ID for API control -->
                 <div id="hero-video-player"></div>
             </div>
             
             <!-- Left Branding -->
             <div class="absolute bottom-8 left-8 z-20 hidden md:block flux delay-700">
-                <p class="font-mono text-brand text-[10px] tracking-widest mb-1 uppercase reveal-text">
+                <p class="font-mono text-brand text-[10px] tracking-widest mb-2 uppercase reveal-text">
                     <span style="transition-delay: 0.1s">EST. 2026</span>
                 </p>
-                <h3 class="text-4xl font-black tracking-tighter uppercase shimmer-text">
-                    KALEIDOS
-                </h3>
+                <div class="flex items-center">
+                    <h3 class="text-5xl font-bold tracking-tighter shimmer-text">
+                        Latentiq
+                    </h3>
+                </div>
             </div>
 
-            <!-- Audio Control Toggle (Professional Integration) -->
+            <!-- Audio Control Toggle -->
             <button id="hero-audio-toggle" class="absolute bottom-8 right-8 z-30 glass-panel border-white/20 px-4 py-3 rounded-full flex items-center gap-3 transition-all hover:border-brand hover:bg-brand/10 group/audio">
                 <div id="visualizer-icon" class="flex items-end gap-1 h-3 w-4 text-white group-hover/audio:text-brand">
                     <div class="audio-bar"></div>
@@ -412,7 +394,7 @@
                         <div class="reveal-text"><span class="text-white/20" style="transition-delay: 0.3s">AI STRATEGY</span></div>
                     </h2>
                     <p class="text-white/60 text-xl leading-relaxed mb-8">
-                        Modern production requires a precise balance of speed, security, and high-fidelity output. <strong>Kaleidos</strong> orchestrates hybrid pipelines within ComfyUI tailored to specific enterprise requirements.
+                        Modern production requires a precise balance of speed, security, and high-fidelity output. <strong>Latentiq Studio</strong> orchestrates hybrid pipelines within ComfyUI tailored to specific enterprise requirements.
                     </p>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -459,7 +441,7 @@
                                 <span class="font-mono text-[10px] text-white/30 uppercase">Deliver</span>
                             </div>
                          </div>
-                         <p class="font-mono text-[10px] text-white/20 tracking-[0.2em] uppercase">Kaleidos Logic // Open Architecture</p>
+                         <p class="font-mono text-[10px] text-white/20 tracking-[0.2em] uppercase">Latentiq Logic // Open Architecture</p>
                     </div>
                 </div>
             </div>
@@ -532,36 +514,9 @@
                             </div>
                         </div>
                         <div class="p-6 font-mono text-sm leading-relaxed overflow-x-auto no-scrollbar bg-[#08080a]">
-<pre><code><span class="code-syntax-keyword">class</span> <span class="code-syntax-func">KaleidosWeightLoader</span>:
+<pre><code><span class="code-syntax-keyword">class</span> <span class="code-syntax-func">LatentiqWeightLoader</span>:
     <span class="code-syntax-keyword">def</span> <span class="code-syntax-func">load_optimized</span>(<span class="code-syntax-keyword">self</span>, model_path, device):
         <span class="code-syntax-keyword">return</span> (<span class="code-syntax-keyword">self</span>.apply_vram_patch(model_path, device),)</code></pre>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="3d" class="py-20 border-t border-white/5 relative overflow-visible">
-            <div class="flex flex-col lg:flex-row gap-0 items-center">
-                <div class="lg:w-1/3 flux z-30 flex flex-col items-start w-full lg:-mr-40 pointer-events-none">
-                    <div class="pointer-events-auto">
-                        <span class="text-brand font-mono text-xs mb-4 block reveal-text w-full">
-                            <span style="transition-delay: 0.1s">PRODUCTION_ASSURANCE</span>
-                        </span>
-                        <h2 class="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none w-full">
-                            <div class="reveal-text w-full"><span style="transition-delay: 0.2s">THE 3D</span></div><br/>
-                            <div class="reveal-text w-full"><span class="text-white/20" style="transition-delay: 0.3s">FOUNDATION</span></div>
-                        </h2>
-                        <p class="text-white/60 text-xl leading-relaxed mb-8 max-w-sm">
-                            AI workflows within <strong>Kaleidos</strong> are grounded in established production principles from traditional 3D motion design.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="lg:w-2/3 flux delay-200 z-10 w-full">
-                    <div class="relative video-blend-left">
-                        <div class="aspect-[21/9] lg:aspect-[16/7] w-full cinematic-video-container rounded-[1.5rem] lg:rounded-[2rem] lg:rounded-r-none">
-                            <iframe src="https://www.youtube.com/embed/ZeGuxfzULwI?rel=0&autoplay=1&mute=1&loop=1&playlist=ZeGuxfzULwI&controls=0&modestbranding=1&showinfo=0&iv_load_policy=3&vq=hd1080" allowfullscreen></iframe>
                         </div>
                     </div>
                 </div>
@@ -574,17 +529,15 @@
                     LET'S CREATE.
                 </h2>
                 <div class="flex flex-wrap justify-center gap-6">
-                    <!-- Updated email link -->
-                    <a href="mailto:emilewilksvfx@gmail.com" class="px-10 py-5 rounded-full bg-brand text-white hover:shadow-[0_0_40px_rgba(255,77,0,0.4)] transition-all font-bold text-xl">Inquire Today</a>
+                    <a href="mailto:emilewilksvfx@gmail.com" class="px-10 py-5 rounded-full bg-brand text-white hover:shadow-[0_0_40px_rgba(255, 74, 178, 0.4)] transition-all font-bold text-xl">Inquire Today</a>
                 </div>
             </div>
             <footer class="mt-40 opacity-20 font-mono text-xs tracking-widest uppercase">
-                Kaleidos &copy; 2026 // Creative Technology Studio
+                Latentiq Studio &copy; 2026 // Creative Technology Studio
             </footer>
         </section>
     </main>
 
-    <!-- YouTube IFrame API -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
@@ -598,14 +551,11 @@
 
         const isPointerDevice = window.matchMedia("(pointer: fine)").matches;
 
-        // Players State
         let heroPlayer;
         let trainingPlayer;
         let isHeroMuted = true;
 
-        // IFrame API Ready
         function onYouTubeIframeAPIReady() {
-            // Hero Player (Showreel)
             heroPlayer = new YT.Player('hero-video-player', {
                 height: '100%',
                 width: '100%',
@@ -623,13 +573,10 @@
                     'vq': 'hd1080'
                 },
                 events: {
-                    'onReady': (event) => {
-                        event.target.playVideo();
-                    }
+                    'onReady': (event) => event.target.playVideo()
                 }
             });
 
-            // Training Player (4x speed)
             trainingPlayer = new YT.Player('training-video-player', {
                 height: '100%',
                 width: '100%',
@@ -652,22 +599,18 @@
                         event.target.playVideo();
                     },
                     'onStateChange': (event) => {
-                        if (event.data === YT.PlayerState.PLAYING) {
-                            event.target.setPlaybackRate(4.0);
-                        }
+                        if (event.data === YT.PlayerState.PLAYING) event.target.setPlaybackRate(4.0);
                     }
                 }
             });
         }
 
-        // Hero Audio Toggle Logic
         const audioBtn = document.getElementById('hero-audio-toggle');
         const visualizer = document.getElementById('visualizer-icon');
         const audioText = document.getElementById('audio-status-text');
 
         audioBtn.addEventListener('click', () => {
             if (!heroPlayer) return;
-
             if (isHeroMuted) {
                 heroPlayer.unMute();
                 isHeroMuted = false;
@@ -681,36 +624,19 @@
             }
         });
 
-        // Intro / Cursor Logic
         window.addEventListener('DOMContentLoaded', () => {
-            if (isPointerDevice) {
-                customCursor.style.display = 'flex';
-            } else {
-                customCursor.style.display = 'none';
-            }
-            
-            setTimeout(() => {
-                introText.classList.add('visible');
-            }, 500);
+            if (isPointerDevice) customCursor.style.display = 'flex';
+            setTimeout(() => introText.classList.add('visible'), 500);
         });
 
         document.addEventListener('mousemove', (e) => {
-            const x = e.clientX;
-            const y = e.clientY;
-            
             requestAnimationFrame(() => {
-                glow.style.left = `${x}px`;
-                glow.style.top = `${y}px`;
-                
+                glow.style.left = `${e.clientX}px`;
+                glow.style.top = `${e.clientY}px`;
                 if (isPointerDevice) {
-                    customCursor.style.left = `${x}px`;
-                    customCursor.style.top = `${y}px`;
-                    
-                    if (!body.classList.contains('can-scroll')) {
-                        customCursor.classList.add('active');
-                    } else {
-                        customCursor.classList.remove('active');
-                    }
+                    customCursor.style.left = `${e.clientX}px`;
+                    customCursor.style.top = `${e.clientY}px`;
+                    customCursor.classList.toggle('active', !body.classList.contains('can-scroll'));
                 }
             });
         });
@@ -718,13 +644,8 @@
         introScreen.addEventListener('click', () => {
             introScreen.style.opacity = '0';
             introScreen.style.transform = 'scale(1.1)';
-            
-            customCursor.classList.remove('active');
-            glow.style.opacity = '0';
-            
             nav.classList.add('visible');
             body.classList.add('can-scroll');
-            
             setTimeout(() => {
                 introScreen.style.display = 'none';
                 customCursor.style.display = 'none';
@@ -734,63 +655,28 @@
 
         const fluxObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                // If it intersects, show it
                 if (entry.isIntersecting) {
                     entry.target.classList.add('in-view');
-                    entry.target.classList.remove('out-view-top');
                 } else {
-                    // If it leaves the view, reset it
                     entry.target.classList.remove('in-view');
-                    // Check if it exited from the top or the bottom
-                    if (entry.boundingClientRect.top < 0) {
-                        entry.target.classList.add('out-view-top');
-                    } else {
-                        entry.target.classList.remove('out-view-top');
-                    }
                 }
             });
-        }, { threshold: [0, 0.1, 0.9, 1] });
+        }, { threshold: 0.1 });
 
         document.querySelectorAll('.flux').forEach(el => fluxObserver.observe(el));
 
-        const navItems = document.querySelectorAll('.nav-item');
-        const sections = document.querySelectorAll('section');
-
-        function centerNavItem(activeItem) {
-            if (!activeItem) return;
-            const containerWidth = navScroll.offsetWidth;
-            const itemOffset = activeItem.offsetLeft;
-            const itemWidth = activeItem.offsetWidth;
-            const scrollPos = itemOffset - (containerWidth / 2) + (itemWidth / 2);
-            navScroll.scrollTo({ left: scrollPos, behavior: 'smooth' });
-        }
-
         window.addEventListener('scroll', () => {
-            let current = "";
-            sections.forEach((section) => {
-                const rect = section.getBoundingClientRect();
-                if (rect.top <= 300 && rect.bottom >= 300) {
-                    current = section.getAttribute("id");
-                }
+            let current = "home";
+            document.querySelectorAll('section').forEach((section) => {
+                if (section.getBoundingClientRect().top <= 300) current = section.getAttribute("id");
             });
-            
-            if (window.scrollY < 100) {
-                current = "home";
-            }
-
-            navItems.forEach((li) => {
-                li.classList.remove("text-brand", "bg-white/10", "px-6", "text-white");
-                li.classList.add("text-white/50");
-                if (li.getAttribute("href") === `#${current}`) {
-                    li.classList.add("text-brand", "bg-white/10", "px-6");
-                    li.classList.remove("text-white/50");
-                    centerNavItem(li);
-                }
+            document.querySelectorAll('.nav-item').forEach((li) => {
+                const isActive = li.getAttribute("href") === `#${current}`;
+                li.classList.toggle("text-brand", isActive);
+                li.classList.toggle("bg-white/10", isActive);
+                li.classList.toggle("px-6", isActive);
+                li.classList.toggle("text-white/50", !isActive);
             });
-        });
-
-        navItems.forEach(item => {
-            item.addEventListener('click', () => centerNavItem(item));
         });
     </script>
 </body>
