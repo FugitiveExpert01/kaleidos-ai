@@ -157,6 +157,12 @@
             transform: translateY(0) scale(1) rotateX(0deg);
         }
 
+        .flux.out-view-top {
+            opacity: 0;
+            filter: blur(10px);
+            transform: translateY(-80px) scale(0.95);
+        }
+
         .reveal-text {
             display: inline-block;
             clip-path: polygon(0 0, 100% 0, 100% 150%, 0 150%);
@@ -199,7 +205,7 @@
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
         }
 
-        /* Responsive Layouts */
+        /* --- LAYOUT FIXES --- */
         .hero-container {
             width: 100%;
             height: 100vh;
@@ -238,24 +244,39 @@
             height: 100%;
             width: 100%;
         }
-        
-        /* Mobile Portrait Coverage: Forces video to cover screen regardless of aspect ratio */
+
+        /* Standard video sizing for 3D and LoRA sections */
         .cinematic-video-container iframe, .cinematic-video-container div {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 100vw;
-            height: 100vh;
-            transform: translate(-50%, -50%) scale(2.5); /* Higher scale for vertical mobile */
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%) scale(1.5);
             pointer-events: none;
         }
         @media (min-width: 768px) {
             .cinematic-video-container iframe, .cinematic-video-container div {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+
+        /* HERO ONLY: Mobile Portrait Coverage Override */
+        #home .cinematic-video-container iframe, 
+        #home .cinematic-video-container div {
+            width: 100vw;
+            height: 100vh;
+            transform: translate(-50%, -50%) scale(2); /* Balanced scale for vertical mobile */
+        }
+        @media (min-width: 768px) {
+            #home .cinematic-video-container iframe, 
+            #home .cinematic-video-container div {
                 width: 100%;
                 height: 100%;
                 transform: translate(-50%, -50%) scale(1.1);
             }
         }
+        /* ------------------ */
 
         .nav-fixed {
             position: fixed;
@@ -267,6 +288,9 @@
             z-index: 500;
             opacity: 0;
             transition: all 1s ease;
+        }
+        @media (min-width: 768px) {
+            .nav-fixed { top: 24px; width: 90%; }
         }
         
         .nav-fixed.visible {
@@ -458,252 +482,4 @@
             <div class="flex flex-col lg:flex-row gap-0 items-center">
                 <div class="lg:w-1/3 flux z-30 flex flex-col items-start w-full lg:-mr-40 pointer-events-none">
                     <div class="pointer-events-auto">
-                        <span class="text-brand font-mono text-xs mb-4 block reveal-text">
-                            <span style="transition-delay: 0.1s">PROCESS_01</span>
-                        </span>
-                        <h2 class="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-[0.85]">
-                            <div class="reveal-text"><span style="transition-delay: 0.2s">AI MODEL</span></div><br/>
-                            <div class="reveal-text pb-4"><span class="text-white/20" style="transition-delay: 0.3s">TRAINING</span></div>
-                        </h2>
-                        <p class="text-white/50 text-xl leading-relaxed mb-8 max-w-sm">
-                            Precision-tuned LoRA models maintain proprietary asset security while ensuring brand consistency across all production stages.
-                        </p>
-                        <div class="glass-panel p-6 rounded-2xl border-brand/10 max-w-xs">
-                            <div class="flex items-center gap-4 text-brand">
-                                <i class="ph-fill ph-fast-forward text-2xl"></i>
-                                <span class="font-mono text-sm uppercase tracking-wider">Proprietary Weights</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="lg:w-2/3 flux delay-200 z-10 w-full">
-                    <div class="relative video-blend-left">
-                        <div class="aspect-[21/9] lg:aspect-[16/7] w-full cinematic-video-container rounded-[1.5rem] lg:rounded-[2rem] lg:rounded-r-none">
-                            <div id="training-video-player"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="tools" class="py-40 border-t border-white/5">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
-                <div class="lg:col-span-5 flux">
-                    <span class="text-brand font-mono text-xs mb-4 block reveal-text">
-                        <span style="transition-delay: 0.1s">BESPOKE_ENGINEERING</span>
-                    </span>
-                    <h2 class="text-5xl md:text-6xl font-black mb-8 tracking-tighter leading-none">
-                        <div class="reveal-text"><span style="transition-delay: 0.2s">CUSTOM</span></div><br/>
-                        <div class="reveal-text"><span class="text-white/20" style="transition-delay: 0.3s">TOOLING</span></div>
-                    </h2>
-                    <p class="text-white/50 text-xl leading-relaxed mb-10">
-                        Development of proprietary ComfyUI nodes solves complex pipeline bottlenecks, offering a distinct technical edge.
-                    </p>
-                    
-                    <a href="https://github.com/FugitiveExpert01/ComfyUI-FEnodes" target="_blank" class="group relative inline-flex items-center gap-4 px-8 py-5 bg-white text-black font-black rounded-full overflow-hidden transition-all hover:pr-12">
-                        <div class="absolute inset-0 bg-brand translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                        <i class="ph ph-github-logo text-2xl relative z-10 group-hover:text-white"></i>
-                        <span class="relative z-10 group-hover:text-white uppercase tracking-tight">Access Node Library</span>
-                    </a>
-                </div>
-
-                <div class="lg:col-span-7 flux delay-300">
-                    <div class="glass-panel rounded-2xl border-white/10 overflow-hidden shadow-2xl scale-105 lg:scale-110 origin-top-left">
-                        <div class="bg-white/5 px-4 py-3 border-b border-white/5 flex items-center justify-between">
-                            <div class="flex gap-2">
-                                <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
-                                <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
-                                <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
-                            </div>
-                            <div class="text-[10px] font-mono text-white/20 tracking-widest uppercase">
-                                <i class="ph ph-file-py"></i> efficiency_nodes.py
-                            </div>
-                        </div>
-                        <div class="p-6 font-mono text-sm leading-relaxed overflow-x-auto no-scrollbar bg-[#08080a]">
-<pre><code><span class="code-syntax-keyword">class</span> <span class="code-syntax-func">LatentiqWeightLoader</span>:
-    <span class="code-syntax-keyword">def</span> <span class="code-syntax-func">load_optimized</span>(<span class="code-syntax-keyword">self</span>, model_path, device):
-        <span class="code-syntax-keyword">return</span> (<span class="code-syntax-keyword">self</span>.apply_vram_patch(model_path, device),)</code></pre>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="about" class="py-40 border-t border-white/5 flex flex-col items-center text-center">
-            <div class="flux">
-                <h2 class="text-6xl md:text-8xl font-black tracking-tighter mb-12 uppercase shimmer-text">
-                    LET'S CREATE.
-                </h2>
-                <div class="flex flex-wrap justify-center gap-6">
-                    <a href="mailto:emilewilksvfx@gmail.com" class="px-10 py-5 rounded-full bg-brand text-white hover:shadow-[0_0_40px_rgba(255, 74, 178, 0.4)] transition-all font-bold text-xl">Inquire Today</a>
-                </div>
-            </div>
-            <footer class="mt-40 opacity-20 font-mono text-xs tracking-widest uppercase">
-                Latentiq Studio &copy; 2026 // Creative Technology Studio
-            </footer>
-        </section>
-    </main>
-
-    <script src="https://www.youtube.com/iframe_api"></script>
-
-    <script>
-        const introText = document.getElementById('intro-text');
-        const introScreen = document.getElementById('intro-screen');
-        const customCursor = document.getElementById('custom-cursor');
-        const glow = document.getElementById('cursor-glow');
-        const nav = document.getElementById('main-nav');
-        const navScroll = document.getElementById('nav-scroll');
-        const body = document.body;
-
-        const isPointerDevice = window.matchMedia("(pointer: fine)").matches;
-
-        let heroPlayer;
-        let trainingPlayer;
-        let isHeroMuted = true;
-
-        function onYouTubeIframeAPIReady() {
-            heroPlayer = new YT.Player('hero-video-player', {
-                height: '100%',
-                width: '100%',
-                videoId: 'yM-_Xojn5Hs',
-                playerVars: {
-                    'autoplay': 1,
-                    'mute': 1,
-                    'loop': 1,
-                    'playlist': 'yM-_Xojn5Hs',
-                    'controls': 0,
-                    'modestbranding': 1,
-                    'showinfo': 0,
-                    'rel': 0,
-                    'enablejsapi': 1,
-                    'vq': 'hd1080'
-                },
-                events: {
-                    'onReady': (event) => event.target.playVideo()
-                }
-            });
-
-            trainingPlayer = new YT.Player('training-video-player', {
-                height: '100%',
-                width: '100%',
-                videoId: 'todJzDq3X2o',
-                playerVars: {
-                    'autoplay': 1,
-                    'mute': 1,
-                    'loop': 1,
-                    'playlist': 'todJzDq3X2o',
-                    'controls': 0,
-                    'modestbranding': 1,
-                    'showinfo': 0,
-                    'rel': 0,
-                    'enablejsapi': 1,
-                    'iv_load_policy': 3
-                },
-                events: {
-                    'onReady': (event) => {
-                        event.target.setPlaybackRate(4.0);
-                        event.target.playVideo();
-                    },
-                    'onStateChange': (event) => {
-                        if (event.data === YT.PlayerState.PLAYING) event.target.setPlaybackRate(4.0);
-                    }
-                }
-            });
-        }
-
-        // AUTO-RESUME LOGIC
-        // Ensures video plays when user returns to the app tab
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                if (heroPlayer && typeof heroPlayer.playVideo === 'function') {
-                    heroPlayer.playVideo();
-                }
-                if (trainingPlayer && typeof trainingPlayer.playVideo === 'function') {
-                    trainingPlayer.playVideo();
-                }
-            }
-        });
-
-        const audioBtn = document.getElementById('hero-audio-toggle');
-        const visualizer = document.getElementById('visualizer-icon');
-        const audioText = document.getElementById('audio-status-text');
-
-        audioBtn.addEventListener('click', () => {
-            if (!heroPlayer) return;
-            if (isHeroMuted) {
-                heroPlayer.unMute();
-                isHeroMuted = false;
-                visualizer.classList.add('is-playing');
-                audioText.innerText = 'Sound On';
-            } else {
-                heroPlayer.mute();
-                isHeroMuted = true;
-                visualizer.classList.remove('is-playing');
-                audioText.innerText = 'Sound Off';
-            }
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            if (isPointerDevice) customCursor.style.display = 'flex';
-            setTimeout(() => introText.classList.add('visible'), 500);
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            requestAnimationFrame(() => {
-                glow.style.left = `${e.clientX}px`;
-                glow.style.top = `${e.clientY}px`;
-                if (isPointerDevice) {
-                    customCursor.style.left = `${e.clientX}px`;
-                    customCursor.style.top = `${e.clientY}px`;
-                    customCursor.classList.toggle('active', !body.classList.contains('can-scroll'));
-                }
-            });
-        });
-
-        introScreen.addEventListener('click', () => {
-            introScreen.style.opacity = '0';
-            introScreen.style.transform = 'scale(1.1)';
-            nav.classList.add('visible');
-            body.classList.add('can-scroll');
-            
-            // Re-trigger play on click to bypass mobile autoplay restrictions
-            if (heroPlayer) heroPlayer.playVideo();
-            if (trainingPlayer) trainingPlayer.playVideo();
-
-            setTimeout(() => {
-                introScreen.style.display = 'none';
-                customCursor.style.display = 'none';
-                glow.style.display = 'none';
-            }, 1200);
-        });
-
-        const fluxObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('in-view');
-                } else {
-                    entry.target.classList.remove('in-view');
-                }
-            });
-        }, { threshold: 0.1 });
-
-        document.querySelectorAll('.flux').forEach(el => fluxObserver.observe(el));
-
-        window.addEventListener('scroll', () => {
-            let current = "home";
-            document.querySelectorAll('section').forEach((section) => {
-                if (section.getBoundingClientRect().top <= 300) current = section.getAttribute("id");
-            });
-            document.querySelectorAll('.nav-item').forEach((li) => {
-                const isActive = li.getAttribute("href") === `#${current}`;
-                li.classList.toggle("text-brand", isActive);
-                li.classList.toggle("bg-white/10", isActive);
-                li.classList.toggle("px-6", isActive);
-                li.classList.toggle("text-white/50", !isActive);
-            });
-        });
-    </script>
-</body>
-</html>
-
-```
+                        <span class="text-br
