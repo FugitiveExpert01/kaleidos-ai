@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -173,7 +174,6 @@
             transform: translateY(0%);
         }
 
-        /* REVERSED SHIMMER: Moving right to left */
         .shimmer-text {
             background: linear-gradient(
                 90deg, 
@@ -207,7 +207,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
+            padding: 0; /* Remove padding for full screen mobile */
         }
         @media (min-width: 768px) {
             .hero-container { padding: 2rem; }
@@ -216,17 +216,20 @@
         .hero-frame {
             position: relative;
             width: 100%;
-            max-width: 1280px; 
-            aspect-ratio: 9/16; 
-            border-radius: 1.5rem;
+            height: 100%; /* Fill container */
+            max-width: none; 
+            border-radius: 0;
             overflow: hidden;
-            box-shadow: 0 0 100px rgba(0,0,0,0.8), 0 0 40px rgba(255, 74, 178, 0.05);
-            border: 1px solid rgba(255,255,255,0.05);
+            border: none;
         }
         @media (min-width: 768px) {
             .hero-frame { 
+                height: auto;
                 aspect-ratio: 16/9; 
+                max-width: 1280px; 
                 border-radius: 2rem;
+                border: 1px solid rgba(255,255,255,0.05);
+                box-shadow: 0 0 100px rgba(0,0,0,0.8), 0 0 40px rgba(255, 74, 178, 0.05);
             }
         }
 
@@ -236,17 +239,21 @@
             height: 100%;
             width: 100%;
         }
+        
+        /* Mobile Portrait Coverage: Forces video to cover screen regardless of aspect ratio */
         .cinematic-video-container iframe, .cinematic-video-container div {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 100%;
-            height: 100%;
-            transform: translate(-50%, -50%) scale(1.5);
+            width: 100vw;
+            height: 100vh;
+            transform: translate(-50%, -50%) scale(2.5); /* Higher scale for vertical mobile */
             pointer-events: none;
         }
         @media (min-width: 768px) {
             .cinematic-video-container iframe, .cinematic-video-container div {
+                width: 100%;
+                height: 100%;
                 transform: translate(-50%, -50%) scale(1.1);
             }
         }
@@ -605,6 +612,19 @@
             });
         }
 
+        // AUTO-RESUME LOGIC
+        // Ensures video plays when user returns to the app tab
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                if (heroPlayer && typeof heroPlayer.playVideo === 'function') {
+                    heroPlayer.playVideo();
+                }
+                if (trainingPlayer && typeof trainingPlayer.playVideo === 'function') {
+                    trainingPlayer.playVideo();
+                }
+            }
+        });
+
         const audioBtn = document.getElementById('hero-audio-toggle');
         const visualizer = document.getElementById('visualizer-icon');
         const audioText = document.getElementById('audio-status-text');
@@ -646,6 +666,11 @@
             introScreen.style.transform = 'scale(1.1)';
             nav.classList.add('visible');
             body.classList.add('can-scroll');
+            
+            // Re-trigger play on click to bypass mobile autoplay restrictions
+            if (heroPlayer) heroPlayer.playVideo();
+            if (trainingPlayer) trainingPlayer.playVideo();
+
             setTimeout(() => {
                 introScreen.style.display = 'none';
                 customCursor.style.display = 'none';
@@ -681,3 +706,5 @@
     </script>
 </body>
 </html>
+
+```
