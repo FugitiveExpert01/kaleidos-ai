@@ -745,6 +745,15 @@
 
         document.querySelectorAll('.flux').forEach(el => fluxObserver.observe(el));
 
+        function centerNavItem(activeItem) {
+            if (!activeItem) return;
+            const containerWidth = navScroll.offsetWidth;
+            const itemOffset = activeItem.offsetLeft;
+            const itemWidth = activeItem.offsetWidth;
+            const scrollPos = itemOffset - (containerWidth / 2) + (itemWidth / 2);
+            navScroll.scrollTo({ left: scrollPos, behavior: 'smooth' });
+        }
+
         window.addEventListener('scroll', () => {
             let current = "home";
             document.querySelectorAll('section').forEach((section) => {
@@ -756,11 +765,16 @@
                 li.classList.toggle("bg-white/10", isActive);
                 li.classList.toggle("px-6", isActive);
                 li.classList.toggle("text-white/50", !isActive);
+                
+                if (isActive) {
+                    centerNavItem(li);
+                }
             });
+        });
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => centerNavItem(item));
         });
     </script>
 </body>
 </html>
-
-
-```
