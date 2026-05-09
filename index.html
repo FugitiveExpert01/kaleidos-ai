@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latentiq Studio | Creative Technology Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['Space Grotesk', 'monospace'],
+                    },
+                    colors: {
+                        dark: '#0a0a0c',
+                        surface: 'rgba(255, 255, 255, 0.03)',
+                        brand: '#FF4AB2', 
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="antialiased relative selection:bg-brand selection:text-white">
+
+    <div class="bg-mesh"></div>
+    <div class="dot-grid-overlay"></div>
+    <div id="cursor-glow"></div>
+
+    <div id="custom-cursor" class="md:flex">
+        <span>[</span>&nbsp;ENTER&nbsp;<span>]</span>
+    </div>
+
+    <div id="intro-screen">
+        <div id="intro-text" class="text-center px-6">
+            <h1 class="text-xs md:text-sm font-mono tracking-[0.6em] text-white/40 uppercase mb-6">ENGINEERING CINEMATIC AI</h1>
+            <div class="relative py-8 px-12 glass-panel border-white/10 rounded-[2.5rem]">
+                <span class="text-6xl md:text-8xl font-bold tracking-tighter shimmer-text block font-sans">Latentiq</span>
+            </div>
+            <div class="mt-12 md:hidden animate-pulse">
+                <p class="font-mono text-[10px] tracking-[0.5em] text-brand uppercase">Tap to Enter</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-fixed" id="main-nav">
+        <nav class="glass-panel rounded-full py-2 shadow-2xl">
+            <div class="nav-scroll-container" id="nav-scroll">
+                <a href="#home" class="nav-item px-4 py-2 rounded-full text-white/50 text-sm font-mono">Showreel</a>
+                <a href="#comfy-workflow" class="nav-item px-4 py-2 rounded-full text-white/50 text-sm font-mono">Architecture</a>
+                <a href="#lora" class="nav-item px-4 py-2 rounded-full text-white/50 text-sm font-mono">Training</a>
+                <a href="#tools" class="nav-item px-4 py-2 rounded-full text-white/50 text-sm font-mono">Custom Nodes</a>
+                <a href="#about" class="nav-item px-4 py-2 rounded-full text-white/50 text-sm font-mono">About</a>
+            </div>
+        </nav>
+    </div>
+
+    <section id="home" class="hero-container flux z-20">
+        <div class="hero-frame">
+            <div class="absolute inset-0 bg-gradient-to-b from-dark/20 via-transparent to-dark/40 z-10 pointer-events-none"></div>
+            <div id="hero-video-player"></div>
+            
+            <div class="absolute bottom-8 left-8 z-20 hidden md:block flux delay-700">
+                <p class="font-mono text-brand text-[10px] tracking-widest mb-2 uppercase reveal-text">
+                    <span style="transition-delay: 0.1s">EST. 2026</span>
+                </p>
+                <h3 class="text-5xl font-bold tracking-tighter shimmer-text">Latentiq</h3>
+            </div>
+
+            <button id="hero-audio-toggle" class="absolute bottom-8 right-8 z-30 glass-panel border-white/20 px-4 py-3 rounded-full flex items-center gap-3 hover:border-brand transition-all">
+                <div id="visualizer-icon" class="flex items-end gap-1 h-3 w-4 text-white">
+                    <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+                </div>
+                <span class="font-mono text-[10px] tracking-[0.2em] text-white/50 uppercase" id="audio-status-text">Sound Off</span>
+            </button>
+        </div>
+    </section>
+
+    <main class="relative z-30 px-6 md:px-24 mx-auto max-w-[1440px]">
+        
+        <section id="comfy-workflow" class="py-40 relative">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-6 flux">
+                    <span class="text-brand font-mono text-xs mb-4 block reveal-text">PIPELINE_ARCHITECTURE</span>
+                    <h2 class="text-5xl md:text-6xl font-black mb-8 tracking-tighter leading-tight">
+                        <div class="reveal-text"><span>ADAPTIVE</span></div><br/>
+                        <div class="reveal-text"><span class="text-white/20">AI STRATEGY</span></div>
+                    </h2>
+                    <p class="text-white/60 text-xl leading-relaxed mb-8">
+                        Modern production requires a precise balance of speed, security, and high-fidelity output. <strong>Latentiq Studio</strong> orchestrates hybrid pipelines within ComfyUI tailored to specific enterprise requirements.
+                    </p>
+                </div>
+                <div class="lg:col-span-6 flux delay-300">
+                    <div class="glass-panel p-8 rounded-[2rem] border-white/10 aspect-video flex flex-col justify-center items-center">
+                         <div class="flex items-center gap-8 mb-4">
+                            <div class="text-center">
+                                <div class="w-16 h-16 rounded-xl border border-brand/40 bg-brand/5 flex items-center justify-center mb-2">
+                                    <i class="ph ph-fingerprint text-brand text-2xl"></i>
+                                </div>
+                                <span class="font-mono text-[10px] text-white/30 uppercase">Secure</span>
+                            </div>
+                            <i class="ph ph-arrow-right text-white/20"></i>
+                            <div class="text-center">
+                                <div class="w-24 h-24 rounded-2xl border border-white/20 flex items-center justify-center mb-2 bg-white/5">
+                                    <i class="ph ph-intersect-three text-brand text-4xl"></i>
+                                </div>
+                                <span class="font-mono text-[10px] text-white/30 uppercase">Engine</span>
+                            </div>
+                         </div>
+                         <p class="font-mono text-[10px] text-white/20 tracking-[0.2em] uppercase">Latentiq Logic // Open Architecture</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="lora" class="py-20 relative border-t border-white/5">
+            <div class="max-w-4xl mx-auto flux text-center">
+                <span class="text-brand font-mono text-xs mb-4 block reveal-text">PROCESS_01</span>
+                <h2 class="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none">
+                    <div class="reveal-text"><span>MODEL</span></div>
+                    <div class="reveal-text"><span class="text-white/20">TRAINING</span></div>
+                </h2>
+                <p class="text-white/50 text-xl leading-relaxed mb-8 mx-auto max-w-2xl">
+                    Precision-tuned LoRA models maintain proprietary asset security while ensuring brand consistency across all production stages. We specialize in deep-weight character and environment training.
+                </p>
+                <div class="inline-flex items-center gap-4 text-brand glass-panel px-6 py-4 rounded-2xl border-brand/20">
+                    <i class="ph-fill ph-shield-check text-2xl"></i>
+                    <span class="font-mono text-sm uppercase tracking-wider">Proprietary Training Weights</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="tools" class="py-40 border-t border-white/5">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+                <div class="lg:col-span-5 flux">
+                    <span class="text-brand font-mono text-xs mb-4 block reveal-text">BESPOKE_ENGINEERING</span>
+                    <h2 class="text-5xl md:text-6xl font-black mb-8 tracking-tighter leading-none">
+                        <div class="reveal-text"><span>CUSTOM</span></div><br/>
+                        <div class="reveal-text"><span class="text-white/20">TOOLING</span></div>
+                    </h2>
+                    <p class="text-white/50 text-xl leading-relaxed mb-10">
+                        Development of proprietary ComfyUI nodes solves complex pipeline bottlenecks, offering a distinct technical edge.
+                    </p>
+                    <a href="https://github.com/FugitiveExpert01/ComfyUI-FEnodes" target="_blank" class="group relative inline-flex items-center gap-4 px-8 py-5 bg-white text-black font-black rounded-full overflow-hidden transition-all">
+                        <div class="absolute inset-0 bg-brand translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        <i class="ph ph-github-logo text-2xl relative z-10 group-hover:text-white"></i>
+                        <span class="relative z-10 group-hover:text-white uppercase tracking-tight">Access Node Library</span>
+                    </a>
+                </div>
+                <div class="lg:col-span-7 flux delay-300">
+                    <div class="glass-panel rounded-2xl border-white/10 overflow-hidden bg-[#08080a] p-6 font-mono text-sm">
+<pre><code><span class="text-brand">class</span> LatentiqWeightLoader:
+    <span class="text-brand">def</span> load_optimized(<span class="text-white/40">self</span>, model_path):
+        <span class="text-brand">return</span> (<span class="text-white/40">self</span>.apply_vram_patch(path),)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="py-40 border-t border-white/5">
+            <div class="max-w-3xl mx-auto flux">
+                <h2 class="text-4xl md:text-5xl font-black tracking-tighter mb-10 uppercase shimmer-text">Where Latent Space Meets Logic</h2>
+                <div class="space-y-6 text-white/60 text-lg leading-relaxed">
+                    <p>Founded in 2026, <strong>Latentiq</strong> is a Creative Technology Studio dedicated to the architecture of cinematic AI. We bridge the gap between raw generative potential and professional production standards, treating the latent space as a physical set that requires precision, lighting, and technical craft.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 py-8">
+                        <div class="border-l-2 border-brand/30 pl-4">
+                            <h4 class="text-white font-bold mb-2">Hybrid Intelligence</h4>
+                            <p class="text-sm">Orchestrating complex pipelines using ComfyUI and industry-leading motion engines.</p>
+                        </div>
+                        <div class="border-l-2 border-brand/30 pl-4">
+                            <h4 class="text-white font-bold mb-2">Production Foundations</h4>
+                            <p class="text-sm">Grounding AI workflows in traditional 3D principles—lighting, composition, and physics.</p>
+                        </div>
+                        <div class="border-l-2 border-brand/30 pl-4">
+                            <h4 class="text-white font-bold mb-2">Data Sovereignty</h4>
+                            <p class="text-sm">Training proprietary LoRA models for absolute brand consistency and IP security.</p>
+                        </div>
+                        <div class="border-l-2 border-brand/30 pl-4">
+                            <h4 class="text-white font-bold mb-2">Bespoke Tooling</h4>
+                            <p class="text-sm">Developing custom Python-based nodes to solve specific production bottlenecks.</p>
+                        </div>
+                    </div>
+
+                    <p>We provide the technical edge and creative assurance needed to scale high-stakes visions. From enterprise training to cinematic execution, welcome to the next layer of the craft.</p>
+                </div>
+                
+                <div class="mt-16 flex flex-col items-center">
+                    <a href="mailto:emilewilksvfx@gmail.com" class="px-10 py-5 rounded-full bg-brand text-white hover:shadow-[0_0_40px_rgba(255, 74, 178, 0.4)] transition-all font-bold text-xl">Inquire Today</a>
+                    <footer class="mt-20 opacity-20 font-mono text-xs tracking-widest uppercase">
+                        Latentiq Studio &copy; 2026 // Creative Technology Studio
+                    </footer>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="script.js"></script>
+</body>
+</html>
