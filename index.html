@@ -3,11 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Latentiq Studio is a creative technology studio specializing in cinematic AI, ComfyUI pipeline architecture, LoRA training, and custom AI tooling for enterprise production.">
+    <meta name="keywords" content="cinematic AI, ComfyUI, LoRA training, AI pipeline architecture, creative technology studio, custom AI tooling, enterprise AI, AI Filmmaker, AI Artist, AI Film Studio, AI cinematographer">
+    <meta name="theme-color" content="#0a0a0c">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Latentiq Studio">
+    <meta property="og:title" content="Latentiq Studio | Creative Technology Studio">
+    <meta property="og:description" content="Cinematic AI and ComfyUI production pipelines built for high-fidelity enterprise experiences. Discover Latentiq Studio's adaptive AI strategy and custom tooling.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Latentiq Studio | Creative Technology Studio">
+    <meta name="twitter:description" content="Cinematic AI and ComfyUI production pipelines built for high-fidelity enterprise experiences.">
     <title>Latentiq Studio | Creative Technology Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Latentiq Studio",
+            "description": "Cinematic AI and ComfyUI production pipelines built for high-fidelity enterprise experiences."
+        }
+    </script>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
     <script>
         tailwind.config = {
             theme: {
@@ -41,7 +69,7 @@
         <div id="intro-text" class="text-center px-6">
             <h1 class="text-xs md:text-sm font-mono tracking-[0.6em] text-white/40 uppercase mb-6">ENGINEERING CINEMATIC AI</h1>
             <div class="relative py-8 px-12 glass-panel border-white/10 rounded-[2.5rem]">
-                <span class="text-6xl md:text-8xl font-bold tracking-tighter shimmer-text block font-sans">Latentiq</span>
+                <h1 class="text-6xl md:text-8xl font-bold tracking-tighter shimmer-text block font-sans">Latentiq Studio</h1>
             </div>
             <div class="mt-12 md:hidden animate-pulse">
                 <p class="font-mono text-[10px] tracking-[0.5em] text-brand uppercase">Tap to Enter</p>
@@ -73,7 +101,7 @@
                 <h3 class="text-5xl font-bold tracking-tighter shimmer-text">Latentiq</h3>
             </div>
 
-            <button id="hero-audio-toggle" class="absolute bottom-8 right-8 z-30 glass-panel border-white/20 px-4 py-3 rounded-full flex items-center gap-3 hover:border-brand transition-all">
+            <button id="hero-audio-toggle" class="absolute bottom-8 right-8 z-30 glass-panel border-white/20 px-4 py-3 rounded-full flex items-center gap-3 hover:border-brand transition-all" aria-label="Toggle video audio">
                 <div id="visualizer-icon" class="flex items-end gap-1 h-3 w-4 text-white">
                     <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
                 </div>
@@ -99,19 +127,19 @@
                 <div class="lg:col-span-6 flux delay-300">
                     <div class="glass-panel p-8 rounded-[2rem] border-white/10 aspect-video flex flex-col justify-center items-center">
                          <div class="flex items-center gap-8 mb-4">
-                            <div class="text-center">
-                                <div class="w-16 h-16 rounded-xl border border-brand/40 bg-brand/5 flex items-center justify-center mb-2">
-                                    <i class="ph ph-fingerprint text-brand text-2xl"></i>
+                                <div class="text-center">
+                                    <div class="w-16 h-16 rounded-xl border border-brand/40 bg-brand/5 flex items-center justify-center mb-2">
+                                        <i class="ph ph-fingerprint text-brand text-2xl" aria-label="Security icon"></i>
+                                    </div>
+                                    <span class="font-mono text-[10px] text-white/30 uppercase">Secure</span>
                                 </div>
-                                <span class="font-mono text-[10px] text-white/30 uppercase">Secure</span>
-                            </div>
-                            <i class="ph ph-arrow-right text-white/20"></i>
-                            <div class="text-center">
-                                <div class="w-24 h-24 rounded-2xl border border-white/20 flex items-center justify-center mb-2 bg-white/5">
-                                    <i class="ph ph-intersect-three text-brand text-4xl"></i>
+                                <i class="ph ph-arrow-right text-white/20" aria-label="Arrow icon"></i>
+                                <div class="text-center">
+                                    <div class="w-24 h-24 rounded-2xl border border-white/20 flex items-center justify-center mb-2 bg-white/5">
+                                        <i class="ph ph-intersect-three text-brand text-4xl" aria-label="Engine icon"></i>
+                                    </div>
+                                    <span class="font-mono text-[10px] text-white/30 uppercase">Engine</span>
                                 </div>
-                                <span class="font-mono text-[10px] text-white/30 uppercase">Engine</span>
-                            </div>
                          </div>
                          <p class="font-mono text-[10px] text-white/20 tracking-[0.2em] uppercase">Latentiq Logic // Open Architecture</p>
                     </div>
@@ -147,10 +175,9 @@
                     <p class="text-white/50 text-xl leading-relaxed mb-10">
                         Development of proprietary ComfyUI nodes solves complex pipeline bottlenecks, offering a distinct technical edge.
                     </p>
-                    <a href="https://github.com/FugitiveExpert01/ComfyUI-FEnodes" target="_blank" class="group relative inline-flex items-center gap-4 px-8 py-5 bg-white text-black font-black rounded-full overflow-hidden transition-all">
-                        <div class="absolute inset-0 bg-brand translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                        <i class="ph ph-github-logo text-2xl relative z-10 group-hover:text-white"></i>
-                        <span class="relative z-10 group-hover:text-white uppercase tracking-tight">Access Node Library</span>
+                    <a href="https://github.com/FugitiveExpert01/ComfyUI-FEnodes" target="_blank" class="group inline-flex items-center gap-4 px-8 py-5 bg-white text-black font-black rounded-full overflow-hidden transition-all hover:bg-brand hover:text-white">
+                        <i class="ph ph-github-logo text-2xl relative z-10"></i>
+                        <span class="relative z-10 uppercase tracking-tight">Access Node Library</span>
                     </a>
                 </div>
                 <div class="lg:col-span-7 flux delay-300">
@@ -191,8 +218,11 @@
                     <p>We provide the technical edge and creative assurance needed to scale high-stakes visions. From enterprise training to cinematic execution, welcome to the next layer of the craft.</p>
                 </div>
                 
-                <div class="mt-16 flex flex-col items-center">
-                    <a href="mailto:emilewilksvfx@gmail.com" class="px-10 py-5 rounded-full bg-brand text-white hover:shadow-[0_0_40px_rgba(255, 74, 178, 0.4)] transition-all font-bold text-xl">Inquire Today</a>
+                <div class="mt-24 flex flex-col items-center">
+                    <div class="cta-wave mb-8 text-center">
+                        <span class="wave-text shimmer-text text-5xl md:text-6xl font-black font-sans">LET'S CREATE.</span>
+                    </div>
+                    <a href="contact.html" class="px-12 py-5 rounded-full bg-brand text-white hover:shadow-[0_0_40px_rgba(255, 74, 178, 0.4)] transition-all font-bold text-xl">Inquire Today</a>
                     <footer class="mt-20 opacity-20 font-mono text-xs tracking-widest uppercase">
                         Latentiq Studio &copy; 2026 // Creative Technology Studio
                     </footer>
@@ -202,6 +232,6 @@
     </main>
 
     <script src="https://www.youtube.com/iframe_api"></script>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>

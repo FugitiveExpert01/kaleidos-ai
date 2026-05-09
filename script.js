@@ -1,20 +1,55 @@
+import { animate } from './node_modules/@motionone/dom/dist/motion.es.js';
+
 const introScreen = document.getElementById('intro-screen');
+const introText = document.getElementById('intro-text');
 const customCursor = document.getElementById('custom-cursor');
 const glow = document.getElementById('cursor-glow');
 const nav = document.getElementById('main-nav');
 const navScroll = document.getElementById('nav-scroll');
+const heroFrame = document.querySelector('.hero-frame');
+const heroAudioButton = document.getElementById('hero-audio-toggle');
 const body = document.body;
 
 let heroPlayer;
 let isHeroMuted = true;
 
-function onYouTubeIframeAPIReady() {
+function animateIn(el, delay = 0) {
+    animate(el, {
+        opacity: [0, 1],
+        transform: ['translateY(32px) scale(0.96)', 'translateY(0px) scale(1)'],
+        filter: ['blur(18px)', 'blur(0px)']
+    }, {
+        duration: 0.85,
+        easing: 'ease-out',
+        delay
+    });
+}
+
+function animatePulse(el) {
+    animate(el, {
+        scale: [1, 1.04, 1]
+    }, {
+        duration: 0.45,
+        easing: 'ease-out'
+    });
+}
+
+function animateLoop(el, props) {
+    animate(el, props, {
+        duration: 4,
+        easing: 'ease-in-out',
+        repeat: Infinity,
+        direction: 'alternate'
+    });
+}
+
+window.onYouTubeIframeAPIReady = function() {
     heroPlayer = new YT.Player('hero-video-player', {
         videoId: 'yM-_Xojn5Hs',
         playerVars: { 'autoplay': 1, 'mute': 1, 'loop': 1, 'playlist': 'yM-_Xojn5Hs', 'controls': 0, 'modestbranding': 1, 'showinfo': 0, 'rel': 0, 'vq': 'hd1080' },
         events: { 'onReady': (e) => e.target.playVideo() }
     });
-}
+};
 
 const audioBtn = document.getElementById('hero-audio-toggle');
 audioBtn.addEventListener('click', () => {
@@ -26,29 +61,55 @@ audioBtn.addEventListener('click', () => {
 });
 
 document.addEventListener('mousemove', (e) => {
-    glow.style.left = `${e.clientX}px`; glow.style.top = `${e.clientY}px`;
-    customCursor.style.left = `${e.clientX}px`; customCursor.style.top = `${e.clientY}px`;
+    const x = e.clientX;
+    const y = e.clientY;
+    glow.style.left = `${x}px`;
+    glow.style.top = `${y}px`;
+    customCursor.style.left = `${x}px`;
+    customCursor.style.top = `${y}px`;
     customCursor.classList.toggle('active', !body.classList.contains('can-scroll'));
+
+    if (heroFrame) {
+        const factorX = (x / window.innerWidth - 0.5) * 14;
+        const factorY = (y / window.innerHeight - 0.5) * 10;
+        heroFrame.style.transform = `translate(${factorX}px, ${factorY}px) scale(1.01)`;
+    }
 });
 
 introScreen.addEventListener('click', () => {
-    introScreen.style.opacity = '0';
+    animate(introScreen, { opacity: [1, 0], transform: ['scale(1)', 'scale(0.98)'] }, { duration: 0.9, easing: 'ease-in' });
     nav.classList.add('visible');
     body.classList.add('can-scroll');
     if (heroPlayer) heroPlayer.playVideo();
-    setTimeout(() => { introScreen.style.display = 'none'; }, 1200);
+    setTimeout(() => { introScreen.style.display = 'none'; }, 900);
 });
 
 const fluxObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
+    entries.forEach((entry, index) => {
         if (entry.isIntersecting) {
+            animateIn(entry.target, index * 0.1);
             entry.target.classList.add('in-view');
         } else {
             entry.target.classList.remove('in-view');
         }
     });
-}, { threshold: 0.1 });
+}, { threshold: 0.18 });
 document.querySelectorAll('.flux').forEach(el => fluxObserver.observe(el));
+
+document.querySelectorAll('.nav-item').forEach((item) => {
+    item.addEventListener('mouseenter', () => animatePulse(item));
+});
+
+if (heroAudioButton) {
+    animateLoop(heroAudioButton, {
+        transform: ['translateY(0px)', 'translateY(-4px)']
+    });
+    heroAudioButton.addEventListener('mouseenter', () => animatePulse(heroAudioButton));
+}
+
+if (introText) {
+    animate(introText, { opacity: [0, 1], transform: ['translateY(20px)', 'translateY(0px)'] }, { duration: 1, easing: 'ease-out' });
+}
 
 function centerNavItem(activeItem) {
     const scrollPos = activeItem.offsetLeft - (navScroll.offsetWidth / 2) + (activeItem.offsetWidth / 2);
@@ -68,4 +129,9 @@ window.addEventListener('scroll', () => {
     });
 });
 
-setTimeout(() => document.getElementById('intro-text').classList.add('visible'), 500);
+const dotGrid = document.querySelector('.dot-grid-overlay');
+
+window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    dotGrid.style.transform = `translateY(${scrollY * 0.3}px)`;
+});
