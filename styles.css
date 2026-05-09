@@ -154,14 +154,14 @@ body.can-scroll {
     }
 }
 
-/* Hero Video Zoom: 2.0x */
+/* Hero Video Zoom: reduced for sharper display */
 #home #hero-video-player {
     position: absolute; top: 50%; left: 50%;
-    width: 100vw; height: 100vh;
-    transform: translate(-50%, -50%) scale(2.0);
+    width: 110vw; height: 110vh;
+    transform: translate(-50%, -50%) scale(1.1);
 }
 @media (min-width: 768px) {
-    #home #hero-video-player { width: 100%; height: 100%; transform: translate(-50%, -50%) scale(1.1); }
+    #home #hero-video-player { width: 105vw; height: 105vh; transform: translate(-50%, -50%) scale(1.05); }
 }
 
 #hero-audio-toggle {

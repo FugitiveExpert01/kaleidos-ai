@@ -1,7 +1,16 @@
-import { animate } from './node_modules/@motionone/dom/dist/motion.es.js';
+function getAnimate() {
+    const animateFn = window.Motion?.animate || window.motion?.animate || window.MotionOne?.animate;
+    if (!animateFn) {
+        console.error('Motion One failed to load. Make sure the UMD script is included before script.js.');
+    }
+    return animateFn;
+}
 
 const introScreen = document.getElementById('intro-screen');
 const introText = document.getElementById('intro-text');
+if (introText) {
+    introText.classList.add('visible');
+}
 const customCursor = document.getElementById('custom-cursor');
 const glow = document.getElementById('cursor-glow');
 const nav = document.getElementById('main-nav');
@@ -14,7 +23,9 @@ let heroPlayer;
 let isHeroMuted = true;
 
 function animateIn(el, delay = 0) {
-    animate(el, {
+    const animateFn = getAnimate();
+    if (!animateFn) return;
+    animateFn(el, {
         opacity: [0, 1],
         transform: ['translateY(32px) scale(0.96)', 'translateY(0px) scale(1)'],
         filter: ['blur(18px)', 'blur(0px)']
@@ -26,7 +37,9 @@ function animateIn(el, delay = 0) {
 }
 
 function animatePulse(el) {
-    animate(el, {
+    const animateFn = getAnimate();
+    if (!animateFn) return;
+    animateFn(el, {
         scale: [1, 1.04, 1]
     }, {
         duration: 0.45,
@@ -35,7 +48,9 @@ function animatePulse(el) {
 }
 
 function animateLoop(el, props) {
-    animate(el, props, {
+    const animateFn = getAnimate();
+    if (!animateFn) return;
+    animateFn(el, props, {
         duration: 4,
         easing: 'ease-in-out',
         repeat: Infinity,
@@ -77,7 +92,10 @@ document.addEventListener('mousemove', (e) => {
 });
 
 introScreen.addEventListener('click', () => {
-    animate(introScreen, { opacity: [1, 0], transform: ['scale(1)', 'scale(0.98)'] }, { duration: 0.9, easing: 'ease-in' });
+    const animateFn = getAnimate();
+    if (animateFn) {
+        animateFn(introScreen, { opacity: [1, 0], transform: ['scale(1)', 'scale(0.98)'] }, { duration: 0.9, easing: 'ease-in' });
+    }
     nav.classList.add('visible');
     body.classList.add('can-scroll');
     if (heroPlayer) heroPlayer.playVideo();
@@ -108,7 +126,10 @@ if (heroAudioButton) {
 }
 
 if (introText) {
-    animate(introText, { opacity: [0, 1], transform: ['translateY(20px)', 'translateY(0px)'] }, { duration: 1, easing: 'ease-out' });
+    const animateFn = getAnimate();
+    if (animateFn) {
+        animateFn(introText, { opacity: [0, 1], transform: ['translateY(20px)', 'translateY(0px)'] }, { duration: 1, easing: 'ease-out' });
+    }
 }
 
 function centerNavItem(activeItem) {
