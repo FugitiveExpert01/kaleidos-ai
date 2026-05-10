@@ -58,22 +58,24 @@ body.can-scroll {
     z-index: 2000;
     color: white;
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.8);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s;
+    transform: translate3d(-50%, -50%, 0) scale(0.8);
+    transition: opacity 0.4s;
+    will-change: transform;
 }
 
 #custom-cursor span { color: var(--brand); font-weight: 700; }
-#custom-cursor.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+#custom-cursor.active { opacity: 1; }
 
 #cursor-glow {
     position: fixed; top: 0; left: 0; width: 600px; height: 600px;
     background: radial-gradient(circle, rgba(255, 74, 178, 0.15) 0%, rgba(255, 74, 178, 0.05) 40%, rgba(255, 74, 178, 0) 70%);
     border-radius: 50%; 
-    transform: translate(-50%, -50%);
+    transform: translate3d(-50%, -50%, 0);
     pointer-events: none; 
     z-index: 0;
     filter: blur(40px);
     opacity: 0.8;
+    will-change: transform;
 }
 
 #intro-screen {
