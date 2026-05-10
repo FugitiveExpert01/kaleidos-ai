@@ -19,6 +19,11 @@ const heroFrame = document.querySelector('.hero-frame');
 const heroAudioButton = document.getElementById('hero-audio-toggle');
 const body = document.body;
 
+// BOLT OPTIMIZATION: Cache DOM elements once at startup
+const sections = document.querySelectorAll('section');
+const navItems = document.querySelectorAll('.nav-item');
+const dotGrid = document.querySelector('.dot-grid-overlay');
+
 let heroPlayer;
 let isHeroMuted = true;
 
@@ -75,19 +80,29 @@ audioBtn.addEventListener('click', () => {
     document.getElementById('audio-status-text').innerText = isHeroMuted ? 'Sound Off' : 'Sound On';
 });
 
-document.addEventListener('mousemove', (e) => {
-    const x = e.clientX;
-    const y = e.clientY;
-    glow.style.left = `${x}px`;
-    glow.style.top = `${y}px`;
-    customCursor.style.left = `${x}px`;
-    customCursor.style.top = `${y}px`;
+// BOLT OPTIMIZATION: Use requestAnimationFrame to throttle mousemove events
+let mouseX = 0, mouseY = 0, mouseUpdatePending = false;
+function updateMouseEffects() {
+    glow.style.left = `${mouseX}px`;
+    glow.style.top = `${mouseY}px`;
+    customCursor.style.left = `${mouseX}px`;
+    customCursor.style.top = `${mouseY}px`;
     customCursor.classList.toggle('active', !body.classList.contains('can-scroll'));
 
     if (heroFrame) {
-        const factorX = (x / window.innerWidth - 0.5) * 14;
-        const factorY = (y / window.innerHeight - 0.5) * 10;
+        const factorX = (mouseX / window.innerWidth - 0.5) * 14;
+        const factorY = (mouseY / window.innerHeight - 0.5) * 10;
         heroFrame.style.transform = `translate(${factorX}px, ${factorY}px) scale(1.01)`;
+    }
+    mouseUpdatePending = false;
+}
+
+document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    if (!mouseUpdatePending) {
+        mouseUpdatePending = true;
+        requestAnimationFrame(updateMouseEffects);
     }
 });
 
@@ -114,7 +129,8 @@ const fluxObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.18 });
 document.querySelectorAll('.flux').forEach(el => fluxObserver.observe(el));
 
-document.querySelectorAll('.nav-item').forEach((item) => {
+// BOLT OPTIMIZATION: Use cached navItems
+navItems.forEach((item) => {
     item.addEventListener('mouseenter', () => animatePulse(item));
 });
 
@@ -137,22 +153,43 @@ function centerNavItem(activeItem) {
     navScroll.scrollTo({ left: scrollPos, behavior: 'smooth' });
 }
 
-window.addEventListener('scroll', () => {
+// BOLT OPTIMIZATION: Consolidate scroll listeners and use requestAnimationFrame for throttling.
+// Also only update the DOM when the active section actually changes (state-aware updates).
+let currentActiveId = "home";
+let currentScrollY = 0, scrollUpdatePending = false;
+
+function updateScrollEffects() {
+    // Parallax for dot grid
+    if (dotGrid) {
+        dotGrid.style.transform = `translateY(${currentScrollY * 0.3}px)`;
+    }
+
+    // Navigation highlighting
     let current = "home";
-    document.querySelectorAll('section').forEach((section) => {
-        if (section.getBoundingClientRect().top <= 300) current = section.getAttribute("id");
+    sections.forEach((section) => {
+        // Use getBoundingClientRect for accurate viewport position
+        if (section.getBoundingClientRect().top <= 300) {
+            current = section.getAttribute("id");
+        }
     });
-    document.querySelectorAll('.nav-item').forEach((li) => {
-        const isActive = li.getAttribute("href") === `#${current}`;
-        li.classList.toggle("text-brand", isActive);
-        li.classList.toggle("bg-white/10", isActive);
-        if (isActive) centerNavItem(li);
-    });
-});
 
-const dotGrid = document.querySelector('.dot-grid-overlay');
+    // Only update navigation items if the active section has changed
+    if (current !== currentActiveId) {
+        currentActiveId = current;
+        navItems.forEach((li) => {
+            const isActive = li.getAttribute("href") === `#${current}`;
+            li.classList.toggle("text-brand", isActive);
+            li.classList.toggle("bg-white/10", isActive);
+            if (isActive) centerNavItem(li);
+        });
+    }
+    scrollUpdatePending = false;
+}
 
 window.addEventListener('scroll', () => {
-    const scrollY = window.scrollY;
-    dotGrid.style.transform = `translateY(${scrollY * 0.3}px)`;
-});
+    currentScrollY = window.scrollY;
+    if (!scrollUpdatePending) {
+        scrollUpdatePending = true;
+        requestAnimationFrame(updateScrollEffects);
+    }
+}, { passive: true });
