@@ -24,6 +24,17 @@ const sections = document.querySelectorAll('section');
 const navItems = document.querySelectorAll('.nav-item');
 const dotGrid = document.querySelector('.dot-grid-overlay');
 
+// BOLT OPTIMIZATION: Cache section offsets to prevent layout thrashing during scroll
+let sectionOffsets = [];
+function cacheSectionOffsets() {
+    sectionOffsets = Array.from(sections).map(section => ({
+        id: section.getAttribute('id'),
+        offset: section.offsetTop
+    }));
+}
+window.addEventListener('load', cacheSectionOffsets);
+window.addEventListener('resize', cacheSectionOffsets);
+
 let heroPlayer;
 let isHeroMuted = true;
 
@@ -83,16 +94,19 @@ audioBtn.addEventListener('click', () => {
 // BOLT OPTIMIZATION: Use requestAnimationFrame to throttle mousemove events
 let mouseX = 0, mouseY = 0, mouseUpdatePending = false;
 function updateMouseEffects() {
-    glow.style.left = `${mouseX}px`;
-    glow.style.top = `${mouseY}px`;
-    customCursor.style.left = `${mouseX}px`;
-    customCursor.style.top = `${mouseY}px`;
-    customCursor.classList.toggle('active', !body.classList.contains('can-scroll'));
+    // BOLT: Use translate3d to avoid layout reflows and trigger GPU acceleration
+    // Centering offsets are handled by the -50% in CSS translate3d
+    glow.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate3d(-50%, -50%, 0)`;
+
+    const isIntro = !body.classList.contains('can-scroll');
+    const cursorScale = isIntro ? 1 : 0.8;
+    customCursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate3d(-50%, -50%, 0) scale(${cursorScale})`;
+    customCursor.classList.toggle('active', isIntro);
 
     if (heroFrame) {
         const factorX = (mouseX / window.innerWidth - 0.5) * 14;
         const factorY = (mouseY / window.innerHeight - 0.5) * 10;
-        heroFrame.style.transform = `translate(${factorX}px, ${factorY}px) scale(1.01)`;
+        heroFrame.style.transform = `translate3d(${factorX}px, ${factorY}px, 0) scale(1.01)`;
     }
     mouseUpdatePending = false;
 }
@@ -164,14 +178,14 @@ function updateScrollEffects() {
         dotGrid.style.transform = `translateY(${currentScrollY * 0.3}px)`;
     }
 
-    // Navigation highlighting
+    // Navigation highlighting - BOLT: Use cached offsets to avoid layout thrashing
     let current = "home";
-    sections.forEach((section) => {
-        // Use getBoundingClientRect for accurate viewport position
-        if (section.getBoundingClientRect().top <= 300) {
-            current = section.getAttribute("id");
+    for (let i = sectionOffsets.length - 1; i >= 0; i--) {
+        if (currentScrollY >= sectionOffsets[i].offset - 300) {
+            current = sectionOffsets[i].id;
+            break;
         }
-    });
+    }
 
     // Only update navigation items if the active section has changed
     if (current !== currentActiveId) {
