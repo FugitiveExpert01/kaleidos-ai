@@ -83,16 +83,19 @@ audioBtn.addEventListener('click', () => {
 // BOLT OPTIMIZATION: Use requestAnimationFrame to throttle mousemove events
 let mouseX = 0, mouseY = 0, mouseUpdatePending = false;
 function updateMouseEffects() {
-    glow.style.left = `${mouseX}px`;
-    glow.style.top = `${mouseY}px`;
-    customCursor.style.left = `${mouseX}px`;
-    customCursor.style.top = `${mouseY}px`;
+    // Use independent translate property for GPU acceleration and to avoid layout reflows from left/top updates.
+    // Modern browsers support 'translate: x y z' which is easier to manage than 'transform'.
+    const translateValue = `${mouseX}px ${mouseY}px`;
+    glow.style.translate = translateValue;
+    customCursor.style.translate = translateValue;
+
     customCursor.classList.toggle('active', !body.classList.contains('can-scroll'));
 
     if (heroFrame) {
         const factorX = (mouseX / window.innerWidth - 0.5) * 14;
         const factorY = (mouseY / window.innerHeight - 0.5) * 10;
-        heroFrame.style.transform = `translate(${factorX}px, ${factorY}px) scale(1.01)`;
+        // Optimization: translate3d + combining with existing centering transform if any (none in CSS for heroFrame)
+        heroFrame.style.transform = `translate3d(${factorX}px, ${factorY}px, 0) scale(1.01)`;
     }
     mouseUpdatePending = false;
 }
@@ -104,7 +107,7 @@ document.addEventListener('mousemove', (e) => {
         mouseUpdatePending = true;
         requestAnimationFrame(updateMouseEffects);
     }
-});
+}, { passive: true });
 
 introScreen.addEventListener('click', () => {
     const animateFn = getAnimate();
@@ -153,25 +156,35 @@ function centerNavItem(activeItem) {
     navScroll.scrollTo({ left: scrollPos, behavior: 'smooth' });
 }
 
+// BOLT OPTIMIZATION: Eliminate layout thrashing by caching section offsets.
+// This prevents calling getBoundingClientRect() during high-frequency scroll events.
+let sectionOffsets = [];
+function cacheSectionOffsets() {
+    sectionOffsets = Array.from(sections).map(section => ({
+        id: section.getAttribute("id"),
+        top: section.offsetTop - 300 // Offset for active state trigger
+    })).sort((a, b) => b.top - a.top); // Sort descending to find the current section easily
+}
+
 // BOLT OPTIMIZATION: Consolidate scroll listeners and use requestAnimationFrame for throttling.
 // Also only update the DOM when the active section actually changes (state-aware updates).
 let currentActiveId = "home";
 let currentScrollY = 0, scrollUpdatePending = false;
 
 function updateScrollEffects() {
-    // Parallax for dot grid
+    // Parallax for dot grid - Use translate3d for GPU acceleration
     if (dotGrid) {
-        dotGrid.style.transform = `translateY(${currentScrollY * 0.3}px)`;
+        dotGrid.style.transform = `translate3d(0, ${currentScrollY * 0.3}px, 0)`;
     }
 
-    // Navigation highlighting
+    // Navigation highlighting using cached offsets
     let current = "home";
-    sections.forEach((section) => {
-        // Use getBoundingClientRect for accurate viewport position
-        if (section.getBoundingClientRect().top <= 300) {
-            current = section.getAttribute("id");
+    for (const section of sectionOffsets) {
+        if (currentScrollY >= section.top) {
+            current = section.id;
+            break;
         }
-    });
+    }
 
     // Only update navigation items if the active section has changed
     if (current !== currentActiveId) {
@@ -193,3 +206,13 @@ window.addEventListener('scroll', () => {
         requestAnimationFrame(updateScrollEffects);
     }
 }, { passive: true });
+
+// Cache offsets on load and resize
+window.addEventListener('load', () => {
+    cacheSectionOffsets();
+    updateScrollEffects();
+});
+window.addEventListener('resize', () => {
+    cacheSectionOffsets();
+    updateScrollEffects();
+});
