@@ -24,6 +24,9 @@ const sections = document.querySelectorAll('section');
 const navItems = document.querySelectorAll('.nav-item');
 const dotGrid = document.querySelector('.dot-grid-overlay');
 
+// BOLT OPTIMIZATION: Cache section offsets to eliminate layout thrashing during scroll
+const sectionOffsets = {};
+
 let heroPlayer;
 let isHeroMuted = true;
 
@@ -153,6 +156,13 @@ function centerNavItem(activeItem) {
     navScroll.scrollTo({ left: scrollPos, behavior: 'smooth' });
 }
 
+// BOLT OPTIMIZATION: Cache section offsets to prevent layout-triggering getBoundingClientRect calls during scroll.
+function cacheSectionOffsets() {
+    sections.forEach(section => {
+        sectionOffsets[section.id] = section.offsetTop;
+    });
+}
+
 // BOLT OPTIMIZATION: Consolidate scroll listeners and use requestAnimationFrame for throttling.
 // Also only update the DOM when the active section actually changes (state-aware updates).
 let currentActiveId = "home";
@@ -166,12 +176,12 @@ function updateScrollEffects() {
 
     // Navigation highlighting
     let current = "home";
-    sections.forEach((section) => {
-        // Use getBoundingClientRect for accurate viewport position
-        if (section.getBoundingClientRect().top <= 300) {
-            current = section.getAttribute("id");
+    // BOLT OPTIMIZATION: Use cached offsets instead of getBoundingClientRect() to eliminate layout thrashing
+    for (const id in sectionOffsets) {
+        if (sectionOffsets[id] <= currentScrollY + 300) {
+            current = id;
         }
-    });
+    }
 
     // Only update navigation items if the active section has changed
     if (current !== currentActiveId) {
@@ -193,3 +203,8 @@ window.addEventListener('scroll', () => {
         requestAnimationFrame(updateScrollEffects);
     }
 }, { passive: true });
+
+// BOLT OPTIMIZATION: Update cache on crucial events
+document.addEventListener('DOMContentLoaded', cacheSectionOffsets);
+window.addEventListener('load', cacheSectionOffsets);
+window.addEventListener('resize', cacheSectionOffsets);
