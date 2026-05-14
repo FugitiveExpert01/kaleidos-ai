@@ -22,6 +22,22 @@ const body = document.body;
 // BOLT OPTIMIZATION: Cache DOM elements once at startup
 const sections = document.querySelectorAll('section');
 const navItems = document.querySelectorAll('.nav-item');
+
+// BOLT OPTIMIZATION: Cache section offsets to avoid layout thrashing during scroll
+let sectionOffsets = [];
+function cacheSectionOffsets() {
+    sectionOffsets = Array.from(sections).map(section => ({
+        id: section.getAttribute('id'),
+        // Use getBoundingClientRect().top + window.scrollY for absolute document position
+        top: section.getBoundingClientRect().top + window.scrollY
+    })).sort((a, b) => b.top - a.top); // Sort descending to find the current active section easily
+}
+
+window.addEventListener('load', cacheSectionOffsets);
+window.addEventListener('resize', () => {
+    cacheSectionOffsets();
+    updateScrollEffects();
+});
 const dotGrid = document.querySelector('.dot-grid-overlay');
 
 let heroPlayer;
@@ -83,16 +99,17 @@ audioBtn.addEventListener('click', () => {
 // BOLT OPTIMIZATION: Use requestAnimationFrame to throttle mousemove events
 let mouseX = 0, mouseY = 0, mouseUpdatePending = false;
 function updateMouseEffects() {
-    glow.style.left = `${mouseX}px`;
-    glow.style.top = `${mouseY}px`;
-    customCursor.style.left = `${mouseX}px`;
-    customCursor.style.top = `${mouseY}px`;
+    // BOLT OPTIMIZATION: Use translate3d for GPU-accelerated movement instead of top/left layout changes
+    glow.style.transform = `translate3d(calc(${mouseX}px - 50%), calc(${mouseY}px - 50%), 0)`;
+    customCursor.style.transform = `translate3d(calc(${mouseX}px - 50%), calc(${mouseY}px - 50%), 0) scale(${body.classList.contains('can-scroll') ? 0.8 : 1})`;
+
     customCursor.classList.toggle('active', !body.classList.contains('can-scroll'));
 
     if (heroFrame) {
         const factorX = (mouseX / window.innerWidth - 0.5) * 14;
         const factorY = (mouseY / window.innerHeight - 0.5) * 10;
-        heroFrame.style.transform = `translate(${factorX}px, ${factorY}px) scale(1.01)`;
+        // BOLT OPTIMIZATION: Use translate3d for hero frame movement
+        heroFrame.style.transform = `translate3d(${factorX}px, ${factorY}px, 0) scale(1.01)`;
     }
     mouseUpdatePending = false;
 }
@@ -161,17 +178,18 @@ let currentScrollY = 0, scrollUpdatePending = false;
 function updateScrollEffects() {
     // Parallax for dot grid
     if (dotGrid) {
-        dotGrid.style.transform = `translateY(${currentScrollY * 0.3}px)`;
+        // BOLT OPTIMIZATION: Use translate3d for GPU acceleration
+        dotGrid.style.transform = `translate3d(0, ${currentScrollY * 0.3}px, 0)`;
     }
 
     // Navigation highlighting
     let current = "home";
-    sections.forEach((section) => {
-        // Use getBoundingClientRect for accurate viewport position
-        if (section.getBoundingClientRect().top <= 300) {
-            current = section.getAttribute("id");
-        }
-    });
+    // BOLT OPTIMIZATION: Use cached offsets instead of getBoundingClientRect() to avoid layout thrashing
+    const targetY = currentScrollY + 300;
+    const activeSection = sectionOffsets.find(section => section.top <= targetY);
+    if (activeSection) {
+        current = activeSection.id;
+    }
 
     // Only update navigation items if the active section has changed
     if (current !== currentActiveId) {
