@@ -26,6 +26,7 @@ const dotGrid = document.querySelector('.dot-grid-overlay');
 
 let heroPlayer;
 let isHeroMuted = true;
+let experienceStarted = false;
 
 function animateIn(el, delay = 0) {
     const animateFn = getAnimate();
@@ -106,7 +107,10 @@ document.addEventListener('mousemove', (e) => {
     }
 });
 
-introScreen.addEventListener('click', () => {
+function startExperience() {
+    if (experienceStarted) return;
+    experienceStarted = true;
+
     const animateFn = getAnimate();
     if (animateFn) {
         animateFn(introScreen, { opacity: [1, 0], transform: ['scale(1)', 'scale(0.98)'] }, { duration: 0.9, easing: 'ease-in' });
@@ -115,7 +119,15 @@ introScreen.addEventListener('click', () => {
     body.classList.add('can-scroll');
     if (heroPlayer) heroPlayer.playVideo();
     setTimeout(() => { introScreen.style.display = 'none'; }, 900);
+}
+
+// Automatically start after a short delay
+window.addEventListener('load', () => {
+    setTimeout(startExperience, 2500);
 });
+
+// Keep click as a fallback/skip
+introScreen.addEventListener('click', startExperience);
 
 const fluxObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry, index) => {
