@@ -6,12 +6,8 @@ function getAnimate() {
     return animateFn;
 }
 
-const introScreen = document.getElementById('intro-screen');
-const introText = document.getElementById('intro-text');
-if (introText) {
-    introText.classList.add('visible');
-}
 const customCursor = document.getElementById('custom-cursor');
+const cursorLabel = customCursor.querySelector('.cursor-label');
 const glow = document.getElementById('cursor-glow');
 const nav = document.getElementById('main-nav');
 const navScroll = document.getElementById('nav-scroll');
@@ -23,6 +19,7 @@ const body = document.body;
 const sections = document.querySelectorAll('section');
 const navItems = document.querySelectorAll('.nav-item');
 const dotGrid = document.querySelector('.dot-grid-overlay');
+const bgMesh = document.querySelector('.bg-mesh');
 
 let heroPlayer;
 let isHeroMuted = true;
@@ -32,11 +29,11 @@ function animateIn(el, delay = 0) {
     if (!animateFn) return;
     animateFn(el, {
         opacity: [0, 1],
-        transform: ['translateY(32px) scale(0.96)', 'translateY(0px) scale(1)'],
-        filter: ['blur(18px)', 'blur(0px)']
+        transform: ['translateY(60px) scale(0.95) skewY(2deg)', 'translateY(0px) scale(1) skewY(0deg)'],
+        filter: ['blur(30px)', 'blur(0px)']
     }, {
-        duration: 0.85,
-        easing: 'ease-out',
+        duration: 1.2,
+        easing: [0.16, 1, 0.3, 1],
         delay
     });
 }
@@ -85,14 +82,47 @@ let mouseX = 0, mouseY = 0, mouseUpdatePending = false;
 function updateMouseEffects() {
     glow.style.left = `${mouseX}px`;
     glow.style.top = `${mouseY}px`;
-    customCursor.style.left = `${mouseX}px`;
-    customCursor.style.top = `${mouseY}px`;
-    customCursor.classList.toggle('active', !body.classList.contains('can-scroll'));
+
+    // Background mesh shift
+    if (bgMesh) {
+        bgMesh.style.setProperty('--mouse-x', `${(mouseX / window.innerWidth) * 100}%`);
+        bgMesh.style.setProperty('--mouse-y', `${(mouseY / window.innerHeight) * 100}%`);
+        bgMesh.style.transform = `translate(${(mouseX / window.innerWidth - 0.5) * 20}px, ${(mouseY / window.innerHeight - 0.5) * 20}px)`;
+    }
+
+    // Magnetic Logic
+    let cursorTargetX = mouseX;
+    let cursorTargetY = mouseY;
+
+    document.querySelectorAll('.magnetic').forEach(el => {
+        const rect = el.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const distanceX = mouseX - centerX;
+        const distanceY = mouseY - centerY;
+        const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+        if (distance < 100) {
+            const strength = 0.4;
+            el.style.transform = `translate(${distanceX * strength}px, ${distanceY * strength}px)`;
+            // If very close, cursor snaps a bit
+            if (distance < 50) {
+                cursorTargetX = centerX + (distanceX * 0.5);
+                cursorTargetY = centerY + (distanceY * 0.5);
+            }
+        } else {
+            el.style.transform = `translate(0px, 0px)`;
+        }
+    });
+
+    customCursor.style.left = `${cursorTargetX}px`;
+    customCursor.style.top = `${cursorTargetY}px`;
+    customCursor.classList.add('active');
 
     if (heroFrame) {
-        const factorX = (mouseX / window.innerWidth - 0.5) * 14;
-        const factorY = (mouseY / window.innerHeight - 0.5) * 10;
-        heroFrame.style.transform = `translate(${factorX}px, ${factorY}px) scale(1.01)`;
+        const factorX = (mouseX / window.innerWidth - 0.5) * 20;
+        const factorY = (mouseY / window.innerHeight - 0.5) * 15;
+        heroFrame.style.transform = `translate(${factorX}px, ${factorY}px) scale(1.02)`;
     }
     mouseUpdatePending = false;
 }
@@ -100,22 +130,27 @@ function updateMouseEffects() {
 document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
+
+    // Interactive Cursor Updates
+    const target = e.target;
+    if (target.closest('a') || target.closest('button')) {
+        customCursor.classList.add('hovering');
+        const label = target.closest('a')?.innerText || target.closest('button')?.innerText || "VIEW";
+        if (cursorLabel) cursorLabel.innerText = label.split('\n')[0].trim();
+    } else if (target.closest('#home')) {
+        customCursor.classList.add('hovering');
+        if (cursorLabel) cursorLabel.innerText = isHeroMuted ? "UNMUTE" : "MUTE";
+    } else {
+        customCursor.classList.remove('hovering');
+        if (cursorLabel) cursorLabel.innerText = "";
+    }
+
     if (!mouseUpdatePending) {
         mouseUpdatePending = true;
         requestAnimationFrame(updateMouseEffects);
     }
 });
 
-introScreen.addEventListener('click', () => {
-    const animateFn = getAnimate();
-    if (animateFn) {
-        animateFn(introScreen, { opacity: [1, 0], transform: ['scale(1)', 'scale(0.98)'] }, { duration: 0.9, easing: 'ease-in' });
-    }
-    nav.classList.add('visible');
-    body.classList.add('can-scroll');
-    if (heroPlayer) heroPlayer.playVideo();
-    setTimeout(() => { introScreen.style.display = 'none'; }, 900);
-});
 
 const fluxObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry, index) => {
@@ -141,12 +176,6 @@ if (heroAudioButton) {
     heroAudioButton.addEventListener('mouseenter', () => animatePulse(heroAudioButton));
 }
 
-if (introText) {
-    const animateFn = getAnimate();
-    if (animateFn) {
-        animateFn(introText, { opacity: [0, 1], transform: ['translateY(20px)', 'translateY(0px)'] }, { duration: 1, easing: 'ease-out' });
-    }
-}
 
 function centerNavItem(activeItem) {
     const scrollPos = activeItem.offsetLeft - (navScroll.offsetWidth / 2) + (activeItem.offsetWidth / 2);
@@ -184,10 +213,28 @@ const navObserver = new IntersectionObserver((entries) => {
 sections.forEach(section => navObserver.observe(section));
 
 function updateScrollEffects() {
+    const scrollProgress = currentScrollY / (document.documentElement.scrollHeight - window.innerHeight);
+
     // Parallax for dot grid
     if (dotGrid) {
         dotGrid.style.transform = `translateY(${currentScrollY * 0.3}px)`;
+        dotGrid.style.opacity = 0.28 + (scrollProgress * 0.1);
     }
+
+    // Scroll scrubbing for mesh background colors
+    if (bgMesh) {
+        const hue = 327 + (scrollProgress * 40); // Shift from pink towards blue
+        bgMesh.style.filter = `hue-rotate(${scrollProgress * 50}deg)`;
+    }
+
+    // Hero scaling on scroll
+    if (heroFrame && currentScrollY < window.innerHeight) {
+        const scale = 1 + (currentScrollY * 0.0002);
+        const blur = currentScrollY * 0.01;
+        heroFrame.style.filter = `blur(${blur}px)`;
+        heroFrame.style.opacity = 1 - (currentScrollY / window.innerHeight);
+    }
+
     scrollUpdatePending = false;
 }
 
@@ -198,3 +245,151 @@ window.addEventListener('scroll', () => {
         requestAnimationFrame(updateScrollEffects);
     }
 }, { passive: true });
+
+/**
+ * DIFFUSION REVEAL ANIMATION
+ * Simulates noise-to-structure transition (Diffusion Process)
+ */
+class DiffusionReveal {
+    constructor() {
+        this.canvas = document.getElementById('diffusion-canvas');
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.numberOfParticles = 1500;
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.pixelRatio = window.devicePixelRatio || 1;
+
+        this.text = "LATENTIQ";
+        this.fontSize = Math.min(this.width / 6, 120);
+        this.targets = [];
+        this.animationComplete = false;
+        this.startTime = null;
+        this.duration = 3000; // 3 seconds total reveal
+
+        this.init();
+    }
+
+    init() {
+        this.canvas.width = this.width * this.pixelRatio;
+        this.canvas.height = this.height * this.pixelRatio;
+        this.ctx.scale(this.pixelRatio, this.pixelRatio);
+
+        // Create initial random particles (Noise)
+        for (let i = 0; i < this.numberOfParticles; i++) {
+            this.particles.push({
+                x: Math.random() * this.width,
+                y: Math.random() * this.height,
+                originX: Math.random() * this.width,
+                originY: Math.random() * this.height,
+                size: Math.random() * 2 + 0.5,
+                color: Math.random() > 0.5 ? '#FF4AB2' : '#ffffff',
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2,
+                friction: 0.95,
+                ease: 0.05 + Math.random() * 0.05
+            });
+        }
+
+        // Generate target coordinates for text
+        this.generateTargets();
+
+        // Start animation
+        requestAnimationFrame((t) => this.animate(t));
+
+        // Hide scroll during intro
+        document.body.style.overflow = 'hidden';
+        nav.style.opacity = '0';
+    }
+
+    generateTargets() {
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = this.width;
+        tempCanvas.height = this.height;
+
+        tempCtx.fillStyle = 'white';
+        tempCtx.textAlign = 'center';
+        tempCtx.textBaseline = 'middle';
+        tempCtx.font = `900 ${this.fontSize}px Outfit, sans-serif`;
+        tempCtx.fillText(this.text, this.width / 2, this.height / 2);
+
+        const imageData = tempCtx.getImageData(0, 0, this.width, this.height).data;
+        const skip = 4; // Skip pixels for performance
+
+        for (let y = 0; y < this.height; y += skip) {
+            for (let x = 0; x < this.width; x += skip) {
+                const index = (y * this.width + x) * 4;
+                if (imageData[index + 3] > 128) {
+                    this.targets.push({ x, y });
+                }
+            }
+        }
+
+        // Assign targets to particles
+        this.particles.forEach((p, i) => {
+            const target = this.targets[i % this.targets.length];
+            p.targetX = target.x;
+            p.targetY = target.y;
+        });
+    }
+
+    animate(timestamp) {
+        if (!this.startTime) this.startTime = timestamp;
+        const elapsed = timestamp - this.startTime;
+        const progress = Math.min(elapsed / this.duration, 1);
+
+        this.ctx.clearRect(0, 0, this.width, this.height);
+
+        // Smooth step for reveal
+        const easeProgress = 1 - Math.pow(1 - progress, 4);
+
+        this.particles.forEach(p => {
+            if (progress < 0.7) {
+                // Phase 1: Noise converging to structure
+                const dx = p.targetX - p.x;
+                const dy = p.targetY - p.y;
+                p.x += dx * p.ease * easeProgress;
+                p.y += dy * p.ease * easeProgress;
+            } else {
+                // Phase 2: Dissolving/Expansion
+                p.vx += (Math.random() - 0.5) * 0.5;
+                p.vy += (Math.random() - 0.5) * 0.5;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.size *= 0.98;
+            }
+
+            this.ctx.fillStyle = p.color;
+            this.ctx.globalAlpha = progress > 0.8 ? 1 - (progress - 0.8) * 5 : 1;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+
+        if (progress < 1) {
+            requestAnimationFrame((t) => this.animate(t));
+        } else {
+            this.complete();
+        }
+    }
+
+    complete() {
+        this.canvas.style.transition = 'opacity 1.5s ease-out';
+        this.canvas.style.opacity = '0';
+        setTimeout(() => {
+            this.canvas.remove();
+            document.body.style.overflow = '';
+            nav.classList.add('visible');
+            nav.style.opacity = '1';
+            // Trigger first section animation
+            const home = document.querySelector('#home');
+            if (home) home.classList.add('in-view');
+        }, 1000);
+    }
+}
+
+window.addEventListener('load', () => {
+    new DiffusionReveal();
+});

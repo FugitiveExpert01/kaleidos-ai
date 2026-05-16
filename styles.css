@@ -7,30 +7,21 @@
 }
 
 body { 
-    background: linear-gradient(135deg, #0a0a0c 0%, #0f0f17 50%, #0a0a0c 100%);
-    background-attachment: fixed;
+    background: #0a0a0c;
     color: #f1f1f1; 
-    overflow: hidden; 
-    width: 100%;
-    height: 100%;
-    position: fixed;
-    cursor: none;
-}
-
-body.can-scroll {
     overflow-x: hidden;
     overflow-y: auto;
-    position: relative;
-    height: auto;
-    cursor: auto;
+    cursor: none;
+    background-attachment: fixed;
 }
 
 .bg-mesh {
     position: fixed;
-    inset: 0;
+    inset: -10%;
     z-index: -1;
-    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06) 0%, #0f0f12 30%, #09090e 100%);
-    animation: bg-shift 18s linear infinite;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 74, 178, 0.08) 0%, rgba(0, 217, 255, 0.03) 30%, #09090e 70%);
+    transition: background 0.8s ease;
+    will-change: transform;
 }
 
 .dot-grid-overlay {
@@ -59,10 +50,33 @@ body.can-scroll {
     color: white;
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.8);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s;
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s;
+    width: 20px;
+    height: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
 }
 
-#custom-cursor span { color: var(--brand); font-weight: 700; }
+#custom-cursor.hovering {
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 74, 178, 0.1);
+    border-color: var(--brand);
+    backdrop-filter: blur(4px);
+}
+
+#custom-cursor span {
+    color: white;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+}
+
+#custom-cursor.hovering span {
+    opacity: 1;
+}
+
 #custom-cursor.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
 #cursor-glow {
@@ -76,44 +90,27 @@ body.can-scroll {
     opacity: 0.8;
 }
 
-#intro-screen {
-    position: fixed; inset: 0; background: linear-gradient(135deg, #0a0a0c 0%, #15101a 50%, #0a0a0c 100%); z-index: 1000;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1); 
-    cursor: pointer;
-    backdrop-filter: blur(0px);
-}
-
-#intro-screen.hidden {
-    backdrop-filter: blur(10px);
-    opacity: 0;
-}
-
-#intro-text {
-    transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
-    filter: blur(20px); opacity: 0; transform: scale(0.9);
-}
-
-#intro-text.visible { filter: blur(0px); opacity: 1; transform: scale(1); }
 
 .flux {
-    opacity: 0; filter: blur(20px);
-    transform: translateY(100px) scale(0.9) rotateX(15deg);
-    transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    opacity: 0;
+    filter: blur(30px);
+    transform: translateY(60px) scale(0.95) skewY(2deg);
+    transition: all 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity, filter;
 }
 
 .flux.in-view { 
     opacity: 1; 
     filter: blur(0px); 
-    transform: translateY(0) scale(1) rotateX(0deg); 
+    transform: translateY(0) scale(1) skewY(0deg);
 }
 
 .flux.delay-300 { transition-delay: 300ms; }
 .flux.delay-700 { transition-delay: 700ms; }
 
 .reveal-text { display: inline-block; clip-path: polygon(0 0, 100% 0, 100% 150%, 0 150%); }
-.reveal-text span { display: inline-block; transform: translateY(110%); transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1); }
-.in-view .reveal-text span { transform: translateY(0%); }
+.reveal-text span { display: inline-block; transform: translateY(110%) rotate(5deg); transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.in-view .reveal-text span { transform: translateY(0%) rotate(0deg); }
 
 .shimmer-text {
     background: linear-gradient(90deg, #fff 0%, #FF4AB2 50%, #fff 100%);
@@ -277,12 +274,12 @@ button:not(.disabled):hover {
 
 .reveal-text span {
     display: inline-block;
-    transform: translateY(110%);
-    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transform: translateY(110%) rotate(5deg);
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .in-view .reveal-text span {
-    transform: translateY(0%);
+    transform: translateY(0%) rotate(0deg);
 }
 
 /* Reduce motion preferences */
