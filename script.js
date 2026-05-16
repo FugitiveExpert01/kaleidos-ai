@@ -153,35 +153,40 @@ function centerNavItem(activeItem) {
     navScroll.scrollTo({ left: scrollPos, behavior: 'smooth' });
 }
 
-// BOLT OPTIMIZATION: Consolidate scroll listeners and use requestAnimationFrame for throttling.
-// Also only update the DOM when the active section actually changes (state-aware updates).
+// BOLT OPTIMIZATION: Use IntersectionObserver for navigation highlighting to avoid layout thrashing.
+// This replaces the expensive getBoundingClientRect() calls in the scroll listener.
 let currentActiveId = "home";
 let currentScrollY = 0, scrollUpdatePending = false;
+
+const navObserverOptions = {
+    root: null,
+    rootMargin: '-20% 0px -70% 0px',
+    threshold: 0
+};
+
+const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+            if (id && id !== currentActiveId) {
+                currentActiveId = id;
+                navItems.forEach((li) => {
+                    const isActive = li.getAttribute("href") === `#${id}`;
+                    li.classList.toggle("text-brand", isActive);
+                    li.classList.toggle("bg-white/10", isActive);
+                    if (isActive) centerNavItem(li);
+                });
+            }
+        }
+    });
+}, navObserverOptions);
+
+sections.forEach(section => navObserver.observe(section));
 
 function updateScrollEffects() {
     // Parallax for dot grid
     if (dotGrid) {
         dotGrid.style.transform = `translateY(${currentScrollY * 0.3}px)`;
-    }
-
-    // Navigation highlighting
-    let current = "home";
-    sections.forEach((section) => {
-        // Use getBoundingClientRect for accurate viewport position
-        if (section.getBoundingClientRect().top <= 300) {
-            current = section.getAttribute("id");
-        }
-    });
-
-    // Only update navigation items if the active section has changed
-    if (current !== currentActiveId) {
-        currentActiveId = current;
-        navItems.forEach((li) => {
-            const isActive = li.getAttribute("href") === `#${current}`;
-            li.classList.toggle("text-brand", isActive);
-            li.classList.toggle("bg-white/10", isActive);
-            if (isActive) centerNavItem(li);
-        });
     }
     scrollUpdatePending = false;
 }
