@@ -10,6 +10,8 @@ const nav = document.getElementById('main-nav');
 const navScroll = document.getElementById('nav-scroll');
 const heroFrame = document.querySelector('.hero-frame');
 const heroAudioButton = document.getElementById('hero-audio-toggle');
+const heroFullscreenButton = document.getElementById('hero-fullscreen-toggle');
+const fullscreenIcon = document.getElementById('fullscreen-icon');
 const body = document.body;
 
 // BOLT OPTIMIZATION: Cache DOM elements once at startup
@@ -74,6 +76,56 @@ audioBtn.addEventListener('click', () => {
     document.getElementById('visualizer-icon').classList.toggle('is-playing', !isHeroMuted);
     document.getElementById('audio-status-text').innerText = isHeroMuted ? 'Sound Off' : 'Sound On';
 });
+
+function getFullscreenElement() {
+    return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+}
+
+function updateFullscreenUI() {
+    if (!heroFullscreenButton || !fullscreenIcon) return;
+    const isFullscreen = Boolean(getFullscreenElement());
+    fullscreenIcon.classList.toggle('ph-corners-out', !isFullscreen);
+    fullscreenIcon.classList.toggle('ph-corners-in', isFullscreen);
+}
+
+function enterFullscreen(el) {
+    if (!el) return;
+    if (el.requestFullscreen) {
+        el.requestFullscreen();
+    } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+    } else if (el.msRequestFullscreen) {
+        el.msRequestFullscreen();
+    }
+}
+
+function exitFullscreen() {
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+    }
+}
+
+if (heroFullscreenButton) {
+    heroFullscreenButton.addEventListener('click', () => {
+        heroFullscreenButton.classList.remove('is-expanding');
+        void heroFullscreenButton.offsetWidth;
+        heroFullscreenButton.classList.add('is-expanding');
+        setTimeout(() => heroFullscreenButton.classList.remove('is-expanding'), 380);
+        if (getFullscreenElement()) {
+            exitFullscreen();
+        } else {
+            enterFullscreen(heroFrame);
+        }
+    });
+    document.addEventListener('fullscreenchange', updateFullscreenUI);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+    document.addEventListener('MSFullscreenChange', updateFullscreenUI);
+    updateFullscreenUI();
+}
 
 // BOLT OPTIMIZATION: Use requestAnimationFrame to throttle mousemove events
 let mouseX = 0, mouseY = 0, mouseUpdatePending = false;
@@ -216,4 +268,3 @@ window.addEventListener('scroll', () => {
         requestAnimationFrame(updateScrollEffects);
     }
 }, { passive: true });
-
