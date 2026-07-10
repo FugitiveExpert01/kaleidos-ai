@@ -8,15 +8,13 @@
 
 ## Why 3D2AI
 
-You've blocked out a composition and you want to see where it could go before you commit. A full render is overkill for that; you just want to explore. Type a prompt, hit generate, and in under a minute you have a new direction to react to.
+Once your composition is blocked out, you can test directions before committing. A full render is overkill here. Type a prompt, hit generate, and quickly get a direction to react to.
 
-Most local AI tools turn you into a part-time systems administrator before you even get to make anything: Python environments, dependency conflicts, command-line installs. The alternative is a cloud subscription, where your scenes leave your machine and every generation means tabbing out of Blender and losing your train of thought.
-
-3D2AI skips both problems. It's local, it's built into Blender, and it's ready in a couple of clicks.
+Instead of wrestling with local setup or bouncing to cloud tools, 3D2AI runs inside Blender and stays local, so you can keep momentum and iterate without breaking flow.
 
 ## The Story Behind It
 
-I wanted a way to control AI output that was fast, local, and didn't fight me for it, using the tool I already knew best: Blender. AI is a genuinely useful tool for concepting and ideation, but only in the hands of an artist who knows what they're doing. Without that, it's worthless.
+I wanted AI control that was fast, local, and frictionless inside the tool I already knew: Blender. AI is genuinely useful for concepting, but only when artists can direct it with intent.
 
 Nothing like that existed, so I built it myself.
 
@@ -43,7 +41,7 @@ Nothing leaves your machine: your scenes, prompts, and results stay in your proj
 
 ## Always Improving
 
-3D2AI is actively maintained. Updates add features requested by the people actually using it, and bring support for new state-of-the-art open generation models as they're released, so your setup keeps pace with the tools instead of falling behind them.
+3D2AI is actively maintained, with user-requested improvements and support for new open generation models as they mature.
 
 ## User Interface
 
