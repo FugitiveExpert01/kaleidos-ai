@@ -3,64 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Contact Latentiq Studio to discuss cinematic AI production, ComfyUI pipeline architecture, and custom AI filmmaking workflows.">
-    <meta name="keywords" content="cinematic AI, ComfyUI, LoRA training, AI film studio, AI filmmaker, AI artist, AI cinematographer">
+    <meta name="description" content="Brief Latentiq on a commercial or brand film. An AI-first production studio, from concept to final delivery.">
+    <meta name="keywords" content="AI production studio, AI commercials, AI brand films, AI advertising, generative video production">
+    <meta name="theme-color" content="#141416">
     <meta name="robots" content="index, follow">
     <meta name="author" content="Latentiq Studio">
     <meta property="og:title" content="Contact Latentiq Studio">
-    <meta property="og:description" content="Contact Latentiq Studio to discuss cinematic AI production, ComfyUI pipeline architecture, and custom AI filmmaking workflows.">
+    <meta property="og:description" content="Brief Latentiq on a commercial or brand film. An AI-first production studio, from concept to final delivery.">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Contact Latentiq Studio">
-    <meta name="twitter:description" content="Contact Latentiq Studio to discuss cinematic AI production, ComfyUI pipeline architecture, and custom AI filmmaking workflows.">
+    <meta name="twitter:description" content="Brief Latentiq on a commercial or brand film. An AI-first production studio, from concept to final delivery.">
     <title>Contact Latentiq Studio</title>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://unpkg.com">
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
     <link rel="dns-prefetch" href="https://unpkg.com">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..600;1,6..96,400..500&family=Jost:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web" defer></script>
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="antialiased relative selection:bg-brand selection:text-white bg-[#08080a] can-scroll">
-    <div class="bg-mesh"></div>
-    <div class="dot-grid-overlay"></div>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
 
-    <header class="relative z-30 px-6 md:px-24 py-10 flex items-center justify-between">
-        <a href="index.html" class="text-white font-black text-xl tracking-tighter">Latentiq Studio</a>
-        <a href="index.html" class="text-brand font-mono text-sm uppercase tracking-[0.3em]">Back to Home</a>
+    <header class="page-header">
+        <a href="index.html" class="footer-mark">Latentiq Studio</a>
+        <a href="index.html" class="back-link"><i class="ph ph-arrow-left" aria-hidden="true"></i>Back to home</a>
     </header>
 
-    <main class="relative z-30 px-6 md:px-24 mx-auto max-w-4xl py-20">
-        <section class="glass-panel border border-white/10 bg-[#08080a]/90 p-10 rounded-[2rem] shadow-2xl">
-            <p class="text-brand font-mono text-xs tracking-[0.5em] uppercase mb-6">Contact</p>
-            <h1 class="text-5xl md:text-6xl font-black tracking-tighter mb-8 text-white">Start a Project with Latentiq</h1>
-            <p class="text-white/60 text-lg leading-relaxed mb-10">Send us your brief or project idea and we’ll get back to you with a tailored AI filmmaking and production strategy.</p>
-            <form action="https://formspree.io/f/your-form-id" method="POST" class="space-y-6">
-                <div>
-                    <label for="name" class="block text-sm font-mono text-white/60 mb-2">Name</label>
-                    <input type="text" id="name" name="name" required class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:border-brand focus:outline-none">
+    <main id="main" class="contact">
+        <div>
+            <h1 class="contact-title">Start a project <em>with Latentiq</em></h1>
+            <p class="lead">Tell us about your commercial or brand film: the product, the audience and when it needs to land. We&rsquo;ll come back with an approach and a plan for production.</p>
+            <p class="direct-email">Prefer email? <a href="mailto:emile@latentiq.co.uk">emile@latentiq.co.uk</a></p>
+        </div>
+
+        <section class="form-panel" aria-label="Project inquiry form">
+            <div class="form-success" id="form-success" tabindex="-1" hidden>
+                <i class="ph ph-check-circle" aria-hidden="true"></i>
+                <h2>Thanks, your inquiry is on its way.</h2>
+                <p>We&rsquo;ll reply to the email address you gave us. If it&rsquo;s urgent, write to <a href="mailto:emile@latentiq.co.uk">emile@latentiq.co.uk</a>.</p>
+            </div>
+            <form action="https://formsubmit.co/emile@latentiq.co.uk" method="POST" class="form" id="inquiry-form">
+                <input type="hidden" name="_subject" value="New project inquiry from latentiq.co.uk">
+                <input type="hidden" name="_next" value="https://latentiq.co.uk/contact.html?sent=1">
+                <input type="hidden" name="_template" value="table">
+                <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="display:none">
+                <div class="field">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" autocomplete="name" required>
                 </div>
-                <div>
-                    <label for="email" class="block text-sm font-mono text-white/60 mb-2">Email</label>
-                    <input type="email" id="email" name="email" required class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:border-brand focus:outline-none">
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" autocomplete="email" required>
                 </div>
-                <div>
-                    <label for="company" class="block text-sm font-mono text-white/60 mb-2">Company / Studio</label>
-                    <input type="text" id="company" name="company" class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:border-brand focus:outline-none">
+                <div class="field">
+                    <label for="company">Company / Studio <span class="optional">(optional)</span></label>
+                    <input type="text" id="company" name="company" autocomplete="organization">
                 </div>
-                <div>
-                    <label for="message" class="block text-sm font-mono text-white/60 mb-2">What would you like to build?</label>
-                    <textarea id="message" name="message" rows="6" required class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:border-brand focus:outline-none resize-none"></textarea>
+                <div class="field">
+                    <label for="project-type">Project type</label>
+                    <select id="project-type" name="project_type">
+                        <option value="Commercial">Commercial</option>
+                        <option value="Brand film">Brand film</option>
+                        <option value="Not sure yet">Not sure yet</option>
+                    </select>
                 </div>
-                <button type="submit" class="inline-flex items-center justify-center px-10 py-4 bg-brand text-white font-bold rounded-full hover:bg-brand/80 transition-colors">Send Inquiry</button>
+                <div class="field">
+                    <label for="message">Tell us about the project</label>
+                    <textarea id="message" name="message" rows="6" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--brand" id="inquiry-submit">
+                        <span id="inquiry-submit-label">Send inquiry</span>
+                        <i class="ph ph-arrow-right arrow" aria-hidden="true"></i>
+                    </button>
+                </div>
             </form>
         </section>
     </main>
+
+    <footer class="site-footer">
+        <div class="container footer-row">
+            <span class="footer-mark">Latentiq Studio</span>
+            <nav class="footer-links" aria-label="Footer">
+                <a href="index.html">Home</a>
+                <a href="3D2AI.html">3D2AI</a>
+                <a href="documentation.html">Documentation</a>
+            </nav>
+            <span>&copy; 2026 AI-first production studio</span>
+        </div>
+    </footer>
+
+    <script>
+        (function () {
+            var form = document.getElementById('inquiry-form');
+            if (new URLSearchParams(location.search).get('sent') === '1') {
+                form.hidden = true;
+                var done = document.getElementById('form-success');
+                done.hidden = false;
+                done.focus();
+                return;
+            }
+            form.addEventListener('submit', function () {
+                document.getElementById('inquiry-submit').disabled = true;
+                document.getElementById('inquiry-submit-label').textContent = 'Sending\u2026';
+            });
+        })();
+    </script>
 </body>
 </html>
