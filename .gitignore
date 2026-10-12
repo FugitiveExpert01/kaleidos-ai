@@ -7,3 +7,5 @@ build/
 .env.local
 test.txt
 Demo.gif
+__pycache__/
+*.pyc
