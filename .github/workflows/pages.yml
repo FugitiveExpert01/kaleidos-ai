@@ -1,0 +1,51 @@
+# Publishes the site to the gh-pages branch:
+#   - main            -> site root (latentiq.co.uk)
+#   - each pull request -> pr-preview/pr-<number>/ (removed when the PR closes)
+# GitHub Pages must be set to "Deploy from a branch: gh-pages / (root)".
+name: Pages and PR previews
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+
+jobs:
+  site:
+    # Keep the root in sync with main. Also runs on pull requests so the root
+    # exists on gh-pages before anyone switches Pages over to it.
+    if: github.event_name != 'pull_request' || github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: JamesIves/github-pages-deploy-action@v4.9.0
+        with:
+          folder: .
+          branch: gh-pages
+          clean-exclude: pr-preview/
+          force: false
+          commit-message: Deploy main site
+
+  preview:
+    if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    needs: site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rossjrw/pr-preview-action@v1.8.1
+        with:
+          source-dir: .
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          pages-base-url: latentiq.co.uk
