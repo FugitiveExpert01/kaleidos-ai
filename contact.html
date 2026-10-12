@@ -39,10 +39,20 @@
         <div>
             <h1 class="contact-title">Start a project <em>with Latentiq</em></h1>
             <p class="lead">Send us your brief or project idea and we&rsquo;ll get back to you with a tailored AI filmmaking and production strategy.</p>
+            <p class="direct-email">Prefer email? <a href="mailto:emile@latentiq.co.uk">emile@latentiq.co.uk</a></p>
         </div>
 
         <section class="form-panel" aria-label="Project inquiry form">
-            <form action="https://formspree.io/f/your-form-id" method="POST" class="form">
+            <div class="form-success" id="form-success" tabindex="-1" hidden>
+                <i class="ph ph-check-circle" aria-hidden="true"></i>
+                <h2>Thanks, your inquiry is on its way.</h2>
+                <p>We&rsquo;ll reply to the email address you gave us. If it&rsquo;s urgent, write to <a href="mailto:emile@latentiq.co.uk">emile@latentiq.co.uk</a>.</p>
+            </div>
+            <form action="https://formsubmit.co/emile@latentiq.co.uk" method="POST" class="form" id="inquiry-form">
+                <input type="hidden" name="_subject" value="New project inquiry from latentiq.co.uk">
+                <input type="hidden" name="_next" value="https://latentiq.co.uk/contact.html?sent=1">
+                <input type="hidden" name="_template" value="table">
+                <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="display:none">
                 <div class="field">
                     <label for="name">Name</label>
                     <input type="text" id="name" name="name" autocomplete="name" required>
@@ -60,8 +70,8 @@
                     <textarea id="message" name="message" rows="6" required></textarea>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn btn--brand">
-                        <span>Send inquiry</span>
+                    <button type="submit" class="btn btn--brand" id="inquiry-submit">
+                        <span id="inquiry-submit-label">Send inquiry</span>
                         <i class="ph ph-arrow-right arrow" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -80,5 +90,22 @@
             <span>&copy; 2026 Creative Technology Studio</span>
         </div>
     </footer>
+
+    <script>
+        (function () {
+            var form = document.getElementById('inquiry-form');
+            if (new URLSearchParams(location.search).get('sent') === '1') {
+                form.hidden = true;
+                var done = document.getElementById('form-success');
+                done.hidden = false;
+                done.focus();
+                return;
+            }
+            form.addEventListener('submit', function () {
+                document.getElementById('inquiry-submit').disabled = true;
+                document.getElementById('inquiry-submit-label').textContent = 'Sending\u2026';
+            });
+        })();
+    </script>
 </body>
 </html>
