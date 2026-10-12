@@ -44,32 +44,62 @@ function initWordmark() {
     const INK = '#f2f0ed';
     const TINTS = [[255, 74, 178], [155, 107, 255], [242, 240, 237]];
     const STEPS = 30;
+    const TRACK = -0.035; // tracking in em, set explicitly so every canvas renders the word identically
     let box = null;
     let done = false;
 
-    // Fit the word to the full width of the hero, using its real ink bounds
+    // Find the word's real ink bounds by drawing it once off-screen and scanning the pixels.
+    // (measureText's bounding box is several percent off for this face at display sizes.)
+    function inkMetrics() {
+        const size = 200;
+        const probe = document.createElement('canvas');
+        probe.width = size * 6; probe.height = size * 2;
+        const p = probe.getContext('2d', { willReadFrequently: true });
+        const x0 = size * 0.5, base = size * 1.3;
+        p.font = `500 ${size}px ${FONT}`;
+        p.textBaseline = 'alphabetic';
+        if ('letterSpacing' in p) p.letterSpacing = `${(TRACK * size).toFixed(2)}px`;
+        p.fillText(WORD, x0, base);
+        const d = p.getImageData(0, 0, probe.width, probe.height).data;
+        let minX = probe.width, maxX = 0, minY = probe.height, maxY = 0;
+        for (let y = 0; y < probe.height; y++) {
+            for (let x = 0; x < probe.width; x++) {
+                if (d[(y * probe.width + x) * 4 + 3] > 8) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+        const u = 100 / size;
+        return { left: (x0 - minX) * u, width: (maxX - minX + 1) * u, ascent: (base - minY) * u, height: (maxY - minY + 1) * u };
+    }
+
+    // Fit the word to the full width of the hero; on very wide screens cap its height instead
     function measure() {
-        const probe = document.createElement('canvas').getContext('2d');
-        probe.font = `500 100px ${FONT}`;
-        const t = probe.measureText(WORD);
-        const inkWidth = t.actualBoundingBoxLeft + t.actualBoundingBoxRight;
-        const width = h1.clientWidth;
-        let k = width / inkWidth;
-        const tall = (t.actualBoundingBoxAscent + t.actualBoundingBoxDescent) * k;
+        const ink = inkMetrics();
+        const holder = h1.parentElement;
+        const pad = getComputedStyle(holder);
+        const available = holder.clientWidth - parseFloat(pad.paddingLeft) - parseFloat(pad.paddingRight);
+        let k = available / ink.width;
         const maxTall = window.innerHeight * 0.42;
-        if (tall > maxTall) k *= maxTall / tall;
+        if (ink.height * k > maxTall) k = maxTall / ink.height;
+        const width = Math.min(available, Math.round(ink.width * k));
+        holder.style.setProperty('--wm-w', `${width}px`);
         return {
             width,
-            height: Math.ceil((t.actualBoundingBoxAscent + t.actualBoundingBoxDescent) * k) + 2,
+            height: Math.ceil(ink.height * k) + 2,
             size: 100 * k,
-            left: t.actualBoundingBoxLeft * k,
-            ascent: t.actualBoundingBoxAscent * k,
+            left: ink.left * k,
+            ascent: ink.ascent * k,
         };
     }
 
     function drawWord(c, scale, blur) {
         c.font = `500 ${box.size * scale}px ${FONT}`;
         c.textBaseline = 'alphabetic';
+        if ('letterSpacing' in c) c.letterSpacing = `${(TRACK * box.size * scale).toFixed(2)}px`;
         if (blur && 'filter' in c) c.filter = `blur(${blur}px)`;
         c.fillText(WORD, box.left * scale, (box.ascent + 1) * scale);
         if ('filter' in c) c.filter = 'none';
@@ -81,6 +111,7 @@ function initWordmark() {
     }
 
     function drawFinal() {
+        layout(); // re-measure: the display face may have finished loading since the first pass
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         canvas.width = Math.round(box.width * dpr);
         canvas.height = Math.round(box.height * dpr);
@@ -150,12 +181,13 @@ function initWordmark() {
         }
     }).catch(() => h1.classList.remove('is-canvas'));
 
+    if (document.fonts) document.fonts.ready.then(() => { if (done) drawFinal(); });
+
     let resizeTimer = 0;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
             if (!done) return;
-            layout();
             drawFinal();
         }, 150);
     });
@@ -448,7 +480,22 @@ requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('is-l
 startReveals();
 initWordmark();
 initServices();
-initSmoothScroll();
-initScrollMotion();
 initCursorLabel();
 initAmbient();
+
+// The animation libraries load after this file, from a CDN. Everything above runs without them;
+// smooth scrolling and scroll-linked motion join in once they have arrived.
+// (Deferred scripts run before DOMContentLoaded fires, so by then the libraries have executed.)
+let librariesStarted = false;
+function initWhenLibrariesReady() {
+    if (librariesStarted) return;
+    librariesStarted = true;
+    initSmoothScroll();
+    initScrollMotion();
+}
+if (document.readyState === 'complete') {
+    initWhenLibrariesReady();
+} else {
+    document.addEventListener('DOMContentLoaded', initWhenLibrariesReady, { once: true });
+    window.addEventListener('load', initWhenLibrariesReady, { once: true });
+}
