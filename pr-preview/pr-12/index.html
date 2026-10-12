@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Latentiq Studio is a creative technology studio specializing in cinematic AI, ComfyUI pipeline architecture, LoRA training, and custom AI tooling for enterprise production.">
+    <meta name="keywords" content="cinematic AI, ComfyUI, LoRA training, AI pipeline architecture, creative technology studio, custom AI tooling, enterprise AI, AI Filmmaker, AI Artist, AI Film Studio, AI cinematographer">
+    <meta name="theme-color" content="#141416">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://unpkg.com">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Latentiq Studio">
+    <meta property="og:title" content="Latentiq Studio | Creative Technology Studio">
+    <meta property="og:description" content="Cinematic AI and ComfyUI production pipelines built for high-fidelity enterprise experiences. Discover Latentiq Studio's adaptive AI strategy and custom tooling.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Latentiq Studio | Creative Technology Studio">
+    <meta name="twitter:description" content="Cinematic AI and ComfyUI production pipelines built for high-fidelity enterprise experiences.">
+    <title>Latentiq Studio | Creative Technology Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..600;1,6..96,400..500&family=Jost:wght@400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web" defer></script>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Latentiq Studio",
+            "description": "Cinematic AI and ComfyUI production pipelines built for high-fidelity enterprise experiences."
+        }
+    </script>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script>
+        // Opt into entrance motion only when JS runs; fall back to static content if the script never arrives.
+        (function (d) {
+            if (!('IntersectionObserver' in window)) return;
+            d.classList.add('motion');
+            var intro = false;
+            try { intro = !sessionStorage.getItem('lq-intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+            if (intro) d.classList.add('intro');
+            setTimeout(function () {
+                if (d.classList.contains('is-loaded')) return;
+                d.classList.remove('motion', 'intro');
+            }, intro ? 7000 : 4000);
+        })(document.documentElement);
+    </script>
+</head>
+<body>
+    <div class="intro-screen" id="intro" role="presentation">
+        <div class="intro-stage">
+            <canvas class="intro-canvas" id="intro-canvas" aria-hidden="true"></canvas>
+            <p class="intro-word" aria-hidden="true">Latentiq</p>
+        </div>
+        <p class="intro-meta" aria-hidden="true"><span id="intro-step">step 00 / 30</span><span>seed 2026</span><span>sampler euler</span></p>
+        <button type="button" class="intro-skip" id="intro-skip">Skip intro</button>
+    </div>
+
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <nav class="site-nav" aria-label="Primary">
+        <div class="nav-track" id="nav-track">
+            <span class="nav-indicator" id="nav-indicator" aria-hidden="true"></span>
+            <a href="#home" class="nav-link">Showreel</a>
+            <a href="#work" class="nav-link">Work</a>
+            <a href="#comfy-workflow" class="nav-link">Architecture</a>
+            <a href="#lora" class="nav-link">Training</a>
+            <a href="#tools" class="nav-link">Custom Nodes</a>
+            <a href="3D2AI.html" class="nav-link">3D2AI</a>
+            <a href="#about" class="nav-link">About</a>
+        </div>
+        <a href="contact.html" class="nav-cta">Contact</a>
+    </nav>
+
+    <header id="home" class="hero">
+        <div class="hero-frame" id="hero-frame">
+            <div id="hero-video-player"></div>
+            <button id="hero-fullscreen-toggle" class="hero-control hero-control--fullscreen" type="button" aria-label="Play showreel fullscreen">
+                <i id="fullscreen-icon" class="ph ph-corners-out" aria-hidden="true"></i>
+            </button>
+            <button id="hero-audio-toggle" class="hero-control hero-control--sound" type="button" aria-pressed="false" aria-label="Turn showreel sound on">
+                <span class="audio-bars" id="visualizer-icon" aria-hidden="true"><span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span></span>
+                <span class="sound-label" id="audio-status-text">Sound off</span>
+            </button>
+        </div>
+
+        <div class="hero-caption">
+            <h1 class="wordmark" data-reveal>
+                <span class="line"><span>Latentiq <em>Studio</em></span></span>
+            </h1>
+            <p class="hero-tagline" data-reveal style="--d: 2">Cinematic AI and ComfyUI production pipelines built for high-fidelity enterprise experiences.</p>
+            <div class="hero-actions" data-reveal style="--d: 3">
+                <button type="button" class="btn btn--outline" id="watch-reel">
+                    <i class="ph-fill ph-play" aria-hidden="true"></i>
+                    <span>Watch the reel</span>
+                </button>
+                <a href="contact.html" class="btn btn--brand">
+                    <span>Start a project</span>
+                    <i class="ph ph-arrow-right arrow" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main id="main" class="page">
+
+        <section id="work" class="section work" aria-labelledby="work-title">
+            <div class="container">
+                <div class="work-head">
+                    <h2 class="headline" id="work-title" data-reveal>
+                        <span class="line"><span>Made in</span></span>
+                        <span class="line"><span><em>latent space</em></span></span>
+                    </h2>
+                    <p class="lead" data-reveal style="--d: 2">Experiments, tools and pipelines from the studio. Every piece on this board runs live in your browser or comes straight out of our own software.</p>
+                </div>
+
+                <div class="collage" id="collage">
+                    <figure class="tile tile--latent" data-depth="-0.04">
+                        <canvas id="latent-canvas" aria-label="A field of points drifting between shapes, rendered live with WebGL"></canvas>
+                        <figcaption class="chip-glass chip--tl"><span class="chip-title">Latent field</span><span class="chip-meta" id="latent-meta">24,000 points &middot; WebGL</span></figcaption>
+                    </figure>
+
+                    <figure class="tile tile--demo" data-depth="0.06">
+                        <video id="demo-video" muted loop playsinline preload="none" poster="assets/demo-poster.jpg" aria-label="3D2AI generating an image from a Blender scene">
+                            <source src="Demo.webm" type="video/webm">
+                            <source src="Demo.mp4" type="video/mp4">
+                        </video>
+                        <figcaption class="chip-glass chip--br"><a href="3D2AI.html" class="chip-link"><span class="chip-title">3D2AI for Blender</span><span class="chip-meta">Prompt to image inside the viewport</span><i class="ph ph-arrow-up-right" aria-hidden="true"></i></a></figcaption>
+                    </figure>
+
+                    <figure class="tile tile--nodes" data-depth="0.1">
+                        <svg class="node-graph" viewBox="0 0 640 400" role="img" aria-label="A ComfyUI workflow: checkpoint and prompt feed a KSampler, which is decoded and saved">
+                            <g class="edges">
+                                <path class="edge e-model" d="M178 92 C 250 92, 290 150, 362 150"/>
+                                <path class="edge e-cond" d="M178 236 C 260 236, 280 182, 362 182"/>
+                                <path class="edge e-latent" d="M178 330 C 270 330, 280 214, 362 214"/>
+                                <path class="edge e-out" d="M522 182 C 560 182, 560 300, 600 300" />
+                                <path class="edge flow e-model" d="M178 92 C 250 92, 290 150, 362 150"/>
+                                <path class="edge flow e-cond" d="M178 236 C 260 236, 280 182, 362 182"/>
+                                <path class="edge flow e-latent" d="M178 330 C 270 330, 280 214, 362 214"/>
+                                <path class="edge flow e-out" d="M522 182 C 560 182, 560 300, 600 300" />
+                            </g>
+                            <g class="node" transform="translate(24 52)">
+                                <rect class="node-body" width="154" height="80" rx="10"/>
+                                <rect class="node-head n-violet" width="154" height="24" rx="10"/><rect class="node-head n-violet" y="14" width="154" height="10"/>
+                                <text class="node-title" x="12" y="16">Load Checkpoint</text>
+                                <text class="node-port" x="12" y="46">ckpt_name</text>
+                                <text class="node-port node-port--out" x="142" y="46">MODEL</text>
+                                <circle class="port" cx="154" cy="40" r="4"/>
+                            </g>
+                            <g class="node" transform="translate(24 196)">
+                                <rect class="node-body" width="154" height="80" rx="10"/>
+                                <rect class="node-head n-pink" width="154" height="24" rx="10"/><rect class="node-head n-pink" y="14" width="154" height="10"/>
+                                <text class="node-title" x="12" y="16">CLIP Text Encode</text>
+                                <text class="node-port" x="12" y="46">&#8220;foggy chapel,</text>
+                                <text class="node-port" x="12" y="62">film grain&#8221;</text>
+                                <circle class="port" cx="154" cy="40" r="4"/>
+                            </g>
+                            <g class="node" transform="translate(24 300)">
+                                <rect class="node-body" width="154" height="60" rx="10"/>
+                                <rect class="node-head n-cyan" width="154" height="24" rx="10"/><rect class="node-head n-cyan" y="14" width="154" height="10"/>
+                                <text class="node-title" x="12" y="16">Empty Latent</text>
+                                <text class="node-port" x="12" y="46">1280 &#215; 720</text>
+                                <circle class="port" cx="154" cy="30" r="4"/>
+                            </g>
+                            <g class="node node--active" transform="translate(362 120)">
+                                <rect class="node-body" width="160" height="128" rx="10"/>
+                                <rect class="node-head n-brand" width="160" height="24" rx="10"/><rect class="node-head n-brand" y="14" width="160" height="10"/>
+                                <text class="node-title" x="12" y="16">KSampler</text>
+                                <text class="node-port" x="12" y="48">seed 2026</text>
+                                <text class="node-port" x="12" y="66">steps 30 &#183; cfg 7.0</text>
+                                <text class="node-port" x="12" y="84">dpmpp_2m &#183; karras</text>
+                                <rect class="progress-track" x="12" y="104" width="136" height="6" rx="3"/>
+                                <rect class="progress-bar" x="12" y="104" width="136" height="6" rx="3"/>
+                            </g>
+                            <g class="node" transform="translate(548 270)">
+                                <circle class="node-out" cx="52" cy="30" r="22"/>
+                                <text class="node-port" x="30" y="72">Save Image</text>
+                            </g>
+                        </svg>
+                        <figcaption class="chip-glass chip--tr"><span class="chip-title">workflow.json</span><span class="chip-meta">ComfyUI &middot; 6 nodes</span></figcaption>
+                    </figure>
+
+                    <figure class="tile tile--wipe" data-depth="0.02">
+                        <img src="assets/before.webp" alt="3D2AI render: a moss-covered chapel in a foggy pine forest" width="771" height="434" loading="lazy" decoding="async">
+                        <img class="wipe-top" src="assets/after.webp" alt="The same chapel as a grey clay model in the Blender viewport" width="771" height="434" loading="lazy" decoding="async">
+                        <span class="wipe-line" aria-hidden="true"></span>
+                        <figcaption class="chip-glass chip--bl"><span class="chip-title">Clay to render</span><span class="chip-meta">One Blender scene, one prompt</span></figcaption>
+                    </figure>
+
+                    <figure class="tile tile--denoise" data-depth="0.14">
+                        <canvas id="denoise-canvas" width="240" height="150" aria-label="An image of a sunset over mountains resolving out of noise, step by step"></canvas>
+                        <figcaption class="chip-glass chip--tl"><span class="chip-title">Denoising</span><span class="chip-meta" id="denoise-step">step 00 / 30</span></figcaption>
+                    </figure>
+
+                    <span class="tag" style="--tx: 61%; --ty: 3%">seed 2026</span>
+                    <span class="tag" style="--tx: 2%; --ty: 55%">cfg 7.0 &middot; steps 30</span>
+                    <span class="tag tag--brand" style="--tx: 44%; --ty: 58%">01:00:12:04</span>
+                    <span class="tag" style="--tx: 52%; --ty: 47%">vae_decode</span>
+                    <span class="tag" style="--tx: 30%; --ty: 97%">lora_strength 0.8</span>
+                </div>
+            </div>
+
+            <div class="proof" aria-label="What we work with">
+                <div class="marquee" aria-hidden="true">
+                    <div class="marquee-track">
+                        <span>ComfyUI pipeline architecture</span><span>LoRA model training</span><span>Open-source ComfyUI nodes</span><span>3D2AI for Blender</span><span>Cinematic AI production</span>
+                        <span>ComfyUI pipeline architecture</span><span>LoRA model training</span><span>Open-source ComfyUI nodes</span><span>3D2AI for Blender</span><span>Cinematic AI production</span>
+                    </div>
+                </div>
+                <div class="container proof-links">
+                    <a href="https://github.com/FugitiveExpert01/ComfyUI-FEnodes" target="_blank" rel="noopener noreferrer" class="pill-glass"><i class="ph ph-github-logo" aria-hidden="true"></i>Node library on GitHub<i class="ph ph-arrow-up-right" aria-hidden="true"></i></a>
+                    <a href="3D2AI.html" class="pill-glass"><i class="ph ph-cube" aria-hidden="true"></i>3D2AI for Blender<i class="ph ph-arrow-right" aria-hidden="true"></i></a>
+                    <a href="documentation.html" class="pill-glass"><i class="ph ph-book-open" aria-hidden="true"></i>Documentation<i class="ph ph-arrow-right" aria-hidden="true"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <section id="comfy-workflow" class="section">
+            <div class="container split">
+                <div>
+                    <h2 class="headline" data-reveal>
+                        <span class="line"><span>Adaptive</span></span>
+                        <span class="line"><span><em>AI strategy</em></span></span>
+                    </h2>
+                    <p class="lead" data-reveal style="--d: 2">
+                        Modern production requires a precise balance of speed, security, and high-fidelity output. <strong>Latentiq Studio</strong> orchestrates hybrid pipelines within ComfyUI tailored to specific enterprise requirements.
+                    </p>
+                </div>
+                <figure class="diagram" data-reveal style="--d: 3" aria-label="Secure inputs flow into the Latentiq engine">
+                    <div class="diagram-flow">
+                        <div class="node">
+                            <div class="node-box"><i class="ph ph-fingerprint" aria-hidden="true"></i></div>
+                            <span class="node-label">Secure</span>
+                        </div>
+                        <svg class="connector" viewBox="0 0 100 2" preserveAspectRatio="none" aria-hidden="true">
+                            <line x1="0" y1="1" x2="100" y2="1"/>
+                            <line class="pulse" x1="0" y1="1" x2="100" y2="1"/>
+                        </svg>
+                        <div class="node">
+                            <div class="node-box node-box--primary"><i class="ph ph-intersect-three" aria-hidden="true"></i></div>
+                            <span class="node-label">Engine</span>
+                        </div>
+                    </div>
+                    <figcaption class="diagram-caption">Latentiq logic &middot; Open architecture</figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <section id="lora" class="section">
+            <div class="container centered">
+                <h2 class="headline" data-reveal>
+                    <span class="line"><span>Model</span></span>
+                    <span class="line"><span><em>training</em></span></span>
+                </h2>
+                <p class="lead" data-reveal style="--d: 2">
+                    Precision-tuned LoRA models maintain proprietary asset security while ensuring brand consistency across all production stages. We specialize in deep-weight character and environment training.
+                </p>
+                <div class="chip" data-reveal style="--d: 3">
+                    <i class="ph-fill ph-shield-check" aria-hidden="true"></i>
+                    <span>Proprietary training weights</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="tools" class="section">
+            <div class="container split split--top">
+                <div>
+                    <h2 class="headline" data-reveal>
+                        <span class="line"><span>Custom</span></span>
+                        <span class="line"><span><em>tooling</em></span></span>
+                    </h2>
+                    <p class="lead" data-reveal style="--d: 2">
+                        Development of proprietary ComfyUI nodes solves complex pipeline bottlenecks, offering a distinct technical edge.
+                    </p>
+                    <div data-reveal style="--d: 3; margin-top: 2.5rem;">
+                        <a href="https://github.com/FugitiveExpert01/ComfyUI-FEnodes" target="_blank" rel="noopener noreferrer" class="btn btn--light">
+                            <i class="ph ph-github-logo" aria-hidden="true"></i>
+                            <span>Access node library</span>
+                            <i class="ph ph-arrow-up-right arrow" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="code-panel" data-reveal style="--d: 3">
+                    <div class="code-bar" aria-hidden="true"><span class="dots"><span></span><span></span><span></span></span>latentiq_nodes.py</div>
+<pre><code><span class="tok-k">class</span> <span class="tok-f">LatentiqWeightLoader</span>:
+    <span class="tok-k">def</span> <span class="tok-f">load_optimized</span>(<span class="tok-s">self</span>, model_path):
+        <span class="tok-k">return</span> (<span class="tok-s">self</span>.apply_vram_patch(path),)</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="section">
+            <div class="container about">
+                <h2 class="headline" data-reveal>
+                    <span class="line"><span>Where latent space</span></span>
+                    <span class="line"><span><em>meets logic</em></span></span>
+                </h2>
+                <div class="prose" data-reveal style="--d: 2">
+                    <p>Founded in 2026, <strong>Latentiq</strong> is a Creative Technology Studio dedicated to the architecture of cinematic AI. We bridge the gap between raw generative potential and professional production standards, treating the latent space as a physical set that requires precision, lighting, and technical craft.</p>
+                </div>
+
+                <div class="principles">
+                    <div class="principle" data-reveal>
+                        <h3>Hybrid Intelligence</h3>
+                        <p>Orchestrating complex pipelines using ComfyUI and industry-leading motion engines.</p>
+                    </div>
+                    <div class="principle" data-reveal style="--d: 1">
+                        <h3>Production Foundations</h3>
+                        <p>Grounding AI workflows in traditional 3D principles: lighting, composition, and physics.</p>
+                    </div>
+                    <div class="principle" data-reveal>
+                        <h3>Data Sovereignty</h3>
+                        <p>Training proprietary LoRA models for absolute brand consistency and IP security.</p>
+                    </div>
+                    <div class="principle" data-reveal style="--d: 1">
+                        <h3>Bespoke Tooling</h3>
+                        <p>Developing custom Python-based nodes to solve specific production bottlenecks.</p>
+                    </div>
+                </div>
+
+                <div class="prose" data-reveal>
+                    <p>We provide the technical edge and creative assurance needed to scale high-stakes visions. From enterprise training to cinematic execution, welcome to the next layer of the craft.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="closing" aria-labelledby="closing-title">
+            <div class="container">
+                <h2 class="closing-title" id="closing-title" data-reveal>
+                    <span class="line"><span>Let&rsquo;s create.</span></span>
+                </h2>
+                <div data-reveal style="--d: 2">
+                    <a href="contact.html" class="btn btn--brand">
+                        <span>Inquire today</span>
+                        <i class="ph ph-arrow-right arrow" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-row">
+            <span class="footer-mark">Latentiq Studio</span>
+            <nav class="footer-links" aria-label="Footer">
+                <a href="3D2AI.html">3D2AI</a>
+                <a href="documentation.html">Documentation</a>
+                <a href="https://github.com/FugitiveExpert01/ComfyUI-FEnodes" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+            <span>&copy; 2026 Creative Technology Studio</span>
+        </div>
+    </footer>
+
+    <script src="js/script.js" defer></script>
+    <script src="js/collage.js" type="module"></script>
+    <script src="https://www.youtube.com/iframe_api" defer></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "files": ["index.html", "contact.html"],
+  "exclude": ["3D2AI.html", "documentation.html"],
+  "insertBefore": "</body>",
+  "commentSyntax": "html",
+  "cspChecked": true
+}
