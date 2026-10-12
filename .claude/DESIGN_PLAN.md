@@ -18,7 +18,15 @@ Notes:
 - **GitHub Pages will not publish `.claude/`.** Jekyll skips dot-folders by default. If a `.nojekyll` file is ever added, add `.claude` to an exclude list or move these files.
 - To update a skill, re-copy its folder from upstream. The upstream installers (`npx impeccable update`, `uipro update`, `npx skills add ...`) also work on a local machine.
 
-## 1. Current state (what the skills will be pointed at)
+## Decisions so far
+
+- **3D2AI stays separate.** `3D2AI.html` and `documentation.html` keep their own look for now; the main-site system covers `index.html` and `contact.html` only.
+- **Tone: lifted charcoal.** Base `#141416`, raised `#1b1b1e`, text `#f2f0ed` / `#a8a5a0` / `#8a8783` (all AA on the base), pink `#FF4AB2` used sparingly, static warm film grain.
+- **Type: editorial pairing.** Bodoni Moda (display) + Jost (body/UI), JetBrains Mono for code only. Italic is reserved for the two bookends: the "Latentiq *Studio*" wordmark and "*Let's create.*".
+- **Motion thesis.** One focal moment: the showreel frame opens like a film gate (clip-path), then the wordmark rises through a mask. Supporting motion: title-card line reveals (run once, never re-hide), a gliding nav indicator, a slow pointer-following key light (desktop only), and the frame settling back on scroll. Full `prefers-reduced-motion` path; content is visible without JS.
+- **No Tailwind CDN on the main site.** `index.html` and `contact.html` now use hand-written CSS with tokens in `css/styles.css`, so no build step was needed.
+
+## 1. Starting state (before the first polish pass)
 
 - **Two design languages.** `index.html` and `contact.html` use Outfit + Space Grotesk, brand `#FF4AB2`, and accent `#00D9FF` through an inline `tailwind.config` plus `css/styles.css`. `3D2AI.html` and `documentation.html` use DM Sans + Space Mono + Space Grotesk, with large inline `<style>` blocks and 35 and 67 inline `style=` attributes respectively.
 - **Tailwind via the Play CDN** (`cdn.tailwindcss.com`). It is meant for prototyping, not production: it ships the whole JIT engine to every visitor, and commit 9589927 had to work around the flash it causes.
