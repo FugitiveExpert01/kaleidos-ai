@@ -68,23 +68,31 @@
     </nav>
 
     <header id="home" class="hero">
-        <div class="hero-inner">
-            <div class="hero-frame" id="hero-frame">
-                <div id="hero-video-player"></div>
-                <button id="hero-fullscreen-toggle" class="hero-control hero-control--fullscreen" type="button" aria-label="Play showreel fullscreen">
-                    <i id="fullscreen-icon" class="ph ph-corners-out" aria-hidden="true"></i>
-                </button>
-                <button id="hero-audio-toggle" class="hero-control hero-control--sound" type="button" aria-pressed="false" aria-label="Turn showreel sound on">
-                    <span class="audio-bars" id="visualizer-icon" aria-hidden="true"><span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span></span>
-                    <span class="sound-label" id="audio-status-text">Sound off</span>
-                </button>
-            </div>
+        <div class="hero-frame" id="hero-frame">
+            <div id="hero-video-player"></div>
+            <button id="hero-fullscreen-toggle" class="hero-control hero-control--fullscreen" type="button" aria-label="Play showreel fullscreen">
+                <i id="fullscreen-icon" class="ph ph-corners-out" aria-hidden="true"></i>
+            </button>
+            <button id="hero-audio-toggle" class="hero-control hero-control--sound" type="button" aria-pressed="false" aria-label="Turn showreel sound on">
+                <span class="audio-bars" id="visualizer-icon" aria-hidden="true"><span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span></span>
+                <span class="sound-label" id="audio-status-text">Sound off</span>
+            </button>
+        </div>
 
-            <div class="hero-caption">
-                <h1 class="wordmark" data-reveal>
-                    <span class="line"><span>Latentiq <em>Studio</em></span></span>
-                </h1>
-                <p class="hero-tagline" data-reveal style="--d: 2">Cinematic AI and ComfyUI production pipelines built for high-fidelity enterprise experiences.</p>
+        <div class="hero-caption">
+            <h1 class="wordmark" data-reveal>
+                <span class="line"><span>Latentiq <em>Studio</em></span></span>
+            </h1>
+            <p class="hero-tagline" data-reveal style="--d: 2">Cinematic AI and ComfyUI production pipelines built for high-fidelity enterprise experiences.</p>
+            <div class="hero-actions" data-reveal style="--d: 3">
+                <button type="button" class="btn btn--outline" id="watch-reel">
+                    <i class="ph-fill ph-play" aria-hidden="true"></i>
+                    <span>Watch the reel</span>
+                </button>
+                <a href="contact.html" class="btn btn--brand">
+                    <span>Start a project</span>
+                    <i class="ph ph-arrow-right arrow" aria-hidden="true"></i>
+                </a>
             </div>
         </div>
     </header>

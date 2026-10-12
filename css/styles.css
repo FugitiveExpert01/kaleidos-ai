@@ -171,45 +171,49 @@ button { font: inherit; color: inherit; }
 }
 .nav-cta:hover { background: var(--brand); color: var(--brand-ink); }
 
-/* ---------- Hero ---------- */
+/* ---------- Hero: cinemascope band ---------- */
 
-.hero {
-    min-height: 100svh;
-    display: grid; place-items: center;
-    padding: 5.5rem var(--gutter) 2.5rem;
-}
+.hero { padding-top: 5.25rem; }
 
-.hero-inner { width: 100%; max-width: min(1320px, (100svh - 15rem) * 16 / 9); }
-@media (max-width: 640px) { .hero-inner { max-width: none; } }
-
+/* Edge-to-edge 2.39:1 band, capped so the caption row still lands on a laptop's first screen */
 .hero-frame {
     position: relative;
-    aspect-ratio: 16 / 9;
-    border-radius: var(--radius-lg);
+    width: 100%;
+    height: min(calc(100vw / 2.39), calc(100svh - 18rem));
+    min-height: 280px;
     overflow: hidden;
     background: var(--bg-sunken);
-    border: 1px solid var(--line);
-    box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.3);
+    border-block: 1px solid var(--line);
     transform-origin: 50% 0%;
     isolation: isolate;
+    container-type: size;
 }
 
-/* Crop the YouTube chrome by overscanning the iframe */
+/* Cover the band with the 16:9 player at any band shape; the overscan also hides YouTube's chrome */
 .hero-frame iframe,
 .hero-frame #hero-video-player {
     position: absolute; top: 50%; left: 50%;
-    width: 100%; height: 100%;
-    transform: translate(-50%, -50%) scale(1.16);
+    width: max(100cqw, 177.78cqh);
+    height: max(100cqh, 56.25cqw);
+    transform: translate(-50%, -50%) scale(1.06);
     border: 0; pointer-events: none;
 }
 
+/* Letterbox bars plus a soft grade so the controls stay legible */
+.hero-frame::before,
 .hero-frame::after {
-    content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    background: linear-gradient(180deg, rgba(15, 15, 17, 0.35) 0%, transparent 22%, transparent 55%, rgba(15, 15, 17, 0.78) 100%);
+    content: ''; position: absolute; left: 0; right: 0; z-index: 1; pointer-events: none;
 }
+.hero-frame::before {
+    top: 0; bottom: 0;
+    background:
+        linear-gradient(180deg, #050506 0, #050506 6%, transparent 6%, transparent 94%, #050506 94%),
+        linear-gradient(180deg, rgba(15, 15, 17, 0.25) 0%, transparent 25%, transparent 70%, rgba(15, 15, 17, 0.45) 100%);
+}
+.hero-frame::after { display: none; }
 
-.hero-frame:fullscreen { border-radius: 0; border: 0; aspect-ratio: auto; }
-.hero-frame:fullscreen::after { display: none; }
+.hero-frame:fullscreen { height: 100%; border: 0; }
+.hero-frame:fullscreen::before { display: none; }
 
 .hero-control {
     position: absolute; z-index: 3;
@@ -225,8 +229,8 @@ button { font: inherit; color: inherit; }
 }
 .hero-control:hover { background: rgba(20, 20, 22, 0.75); border-color: rgba(242, 240, 237, 0.32); }
 .hero-control:active { transform: scale(0.96); }
-.hero-control--fullscreen { top: 1rem; right: 1rem; padding: 0; }
-.hero-control--sound { bottom: 1rem; right: 1rem; }
+.hero-control--fullscreen { top: calc(6% + 0.75rem); right: var(--gutter); padding: 0; }
+.hero-control--sound { bottom: calc(6% + 0.75rem); right: var(--gutter); }
 .hero-control i { font-size: 1.05rem; }
 
 .sound-label { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-2); }
@@ -239,14 +243,19 @@ button { font: inherit; color: inherit; }
 @keyframes bar-dance { 0%, 100% { transform: scaleY(0.35); } 50% { transform: scaleY(1); } }
 
 .hero-caption {
-    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
-    gap: 1rem 3rem;
-    margin-top: clamp(1.5rem, 1rem + 2vw, 2.75rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "mark actions" "tagline actions";
+    align-items: end;
+    gap: 1.1rem 3rem;
+    max-width: 1440px; margin: 0 auto;
+    padding: clamp(1.75rem, 1rem + 2vw, 2.75rem) var(--gutter) 0;
 }
 
 .wordmark {
+    grid-area: mark;
     font-family: var(--font-display);
-    font-size: var(--step-display);
+    font-size: clamp(3.25rem, 1.6rem + 5vw, 6rem);
     font-weight: 500;
     font-optical-sizing: auto;
     line-height: 0.92;
@@ -255,11 +264,17 @@ button { font: inherit; color: inherit; }
 .wordmark em { font-style: italic; font-weight: 400; color: var(--text-2); }
 
 .hero-tagline {
-    max-width: 30ch;
+    grid-area: tagline;
+    max-width: 52ch;
     font-size: var(--step-lead);
     line-height: 1.5;
     color: var(--text-2);
-    padding-bottom: 0.6rem;
+}
+
+.hero-actions { grid-area: actions; display: flex; flex-wrap: wrap; gap: 0.75rem; padding-bottom: 0.2rem; }
+
+@media (max-width: 900px) {
+    .hero-caption { grid-template-columns: minmax(0, 1fr); grid-template-areas: "mark" "tagline" "actions"; }
 }
 
 /* ---------- Sections ---------- */
@@ -380,6 +395,9 @@ button { font: inherit; color: inherit; }
 
 .btn--light { background: var(--text); color: var(--bg); }
 .btn--light:hover { background: #ffffff; box-shadow: 0 12px 30px -12px rgba(242, 240, 237, 0.35); }
+
+.btn--outline { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.btn--outline:hover { box-shadow: inset 0 0 0 1px var(--text-2); background: rgba(242, 240, 237, 0.04); }
 
 .btn--brand { background: var(--brand); color: var(--brand-ink); }
 .btn--brand:hover { background: var(--brand-hover); box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.7); }
@@ -521,9 +539,9 @@ button { font: inherit; color: inherit; }
 /* ---------- Motion ---------- */
 
 /* Content is visible by default; motion only applies once JS opts in. */
-.motion .hero-frame { clip-path: inset(50% 0 50% 0 round var(--radius-lg)); }
+.motion .hero-frame { clip-path: inset(50% 0 50% 0); }
 .motion.is-loaded .hero-frame {
-    clip-path: inset(0 0 0 0 round var(--radius-lg));
+    clip-path: inset(0 0 0 0);
     transition: clip-path 1.3s var(--ease-out) 0.15s;
 }
 
@@ -562,13 +580,11 @@ button { font: inherit; color: inherit; }
 /* ---------- Small screens ---------- */
 
 @media (max-width: 640px) {
-    .hero { min-height: auto; padding-top: 5.25rem; }
-    .hero-frame { border-radius: var(--radius); }
-    .motion .hero-frame { clip-path: inset(50% 0 50% 0 round var(--radius)); }
-    .motion.is-loaded .hero-frame { clip-path: inset(0 0 0 0 round var(--radius)); }
+    .hero-frame { height: auto; aspect-ratio: 16 / 10; min-height: 0; }
     .hero-control { height: 2.5rem; min-width: 2.5rem; }
-    .hero-control--fullscreen { top: 0.6rem; right: 0.6rem; }
-    .hero-control--sound { bottom: 0.6rem; right: 0.6rem; padding: 0 0.75rem; }
+    .hero-control--fullscreen { top: calc(6% + 0.4rem); right: 0.6rem; }
+    .hero-control--sound { bottom: calc(6% + 0.4rem); right: 0.6rem; padding: 0 0.75rem; }
+    .hero-actions { flex-direction: column; }
     .nav-cta { padding: 0.55rem 0.9rem; }
     .diagram { aspect-ratio: auto; padding: 3rem 1rem 2rem; }
     .code-panel pre { font-size: 0.75rem; padding: 1.25rem 1rem 1.5rem; }

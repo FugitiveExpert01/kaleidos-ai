@@ -44,16 +44,19 @@ window.onYouTubeIframeAPIReady = function () {
     });
 };
 
+function setHeroMuted(muted) {
+    if (!heroPlayer || !heroPlayer.mute) return;
+    isHeroMuted = muted;
+    muted ? heroPlayer.mute() : heroPlayer.unMute();
+    if (!heroAudioButton) return;
+    heroAudioButton.classList.toggle('is-playing', !muted);
+    heroAudioButton.setAttribute('aria-pressed', String(!muted));
+    heroAudioButton.setAttribute('aria-label', muted ? 'Turn showreel sound on' : 'Turn showreel sound off');
+    document.getElementById('audio-status-text').textContent = muted ? 'Sound off' : 'Sound on';
+}
+
 if (heroAudioButton) {
-    heroAudioButton.addEventListener('click', () => {
-        if (!heroPlayer) return;
-        isHeroMuted = !isHeroMuted;
-        isHeroMuted ? heroPlayer.mute() : heroPlayer.unMute();
-        heroAudioButton.classList.toggle('is-playing', !isHeroMuted);
-        heroAudioButton.setAttribute('aria-pressed', String(!isHeroMuted));
-        heroAudioButton.setAttribute('aria-label', isHeroMuted ? 'Turn showreel sound on' : 'Turn showreel sound off');
-        document.getElementById('audio-status-text').textContent = isHeroMuted ? 'Sound off' : 'Sound on';
-    });
+    heroAudioButton.addEventListener('click', () => setHeroMuted(!isHeroMuted));
 }
 
 function getFullscreenElement() {
@@ -68,16 +71,35 @@ function updateFullscreenUI() {
     if (isFullscreen) heroFrame.style.transform = '';
 }
 
+function toggleFullscreen() {
+    if (getFullscreenElement()) {
+        (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else {
+        const request = heroFrame.requestFullscreen || heroFrame.webkitRequestFullscreen;
+        if (request) Promise.resolve(request.call(heroFrame)).catch(() => {});
+    }
+}
+
 if (heroFullscreenButton && heroFrame) {
-    heroFullscreenButton.addEventListener('click', () => {
-        if (getFullscreenElement()) {
-            (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-        } else {
-            (heroFrame.requestFullscreen || heroFrame.webkitRequestFullscreen).call(heroFrame);
-        }
-    });
+    heroFullscreenButton.addEventListener('click', toggleFullscreen);
     document.addEventListener('fullscreenchange', updateFullscreenUI);
     document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+}
+
+// "Watch the reel": the click is the one moment browsers allow sound, so open it properly
+const watchReelButton = document.getElementById('watch-reel');
+if (watchReelButton && heroFrame) {
+    watchReelButton.addEventListener('click', () => {
+        if (heroPlayer && heroPlayer.seekTo) {
+            heroPlayer.seekTo(0, true);
+            heroPlayer.playVideo();
+        }
+        setHeroMuted(false);
+        if (!getFullscreenElement()) toggleFullscreen();
+        if (!heroFrame.requestFullscreen && !heroFrame.webkitRequestFullscreen) {
+            heroFrame.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'center' });
+        }
+    });
 }
 
 // ---------- Navigation: one indicator glides to the current section ----------
