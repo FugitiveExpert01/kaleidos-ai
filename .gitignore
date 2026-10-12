@@ -9,3 +9,7 @@ test.txt
 Demo.gif
 __pycache__/
 *.pyc
+
+# Impeccable live-mode session state (config is tracked)
+.impeccable/live/*
+!.impeccable/live/config.json
