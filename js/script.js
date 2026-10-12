@@ -1,6 +1,8 @@
 const root = document.documentElement;
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+const wide = window.matchMedia('(min-width: 1024px)');
+const hasGsap = () => Boolean(window.gsap && window.ScrollTrigger);
 
 const heroFrame = document.getElementById('hero-frame');
 const heroAudioButton = document.getElementById('hero-audio-toggle');
@@ -14,123 +16,149 @@ const ambient = document.querySelector('.ambient');
 // ---------- Reveals: run once, never hide content again ----------
 
 function startReveals() {
-    const revealTargets = document.querySelectorAll('[data-reveal]');
+    const targets = document.querySelectorAll('[data-reveal], .tile, .service');
     if (!('IntersectionObserver' in window)) {
-        revealTargets.forEach((el) => el.classList.add('is-revealed'));
+        targets.forEach((el) => el.classList.add('is-revealed'));
         return;
     }
-    const revealObserver = new IntersectionObserver((entries) => {
+    const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
             if (!entry.isIntersecting) return;
             entry.target.classList.add('is-revealed');
-            revealObserver.unobserve(entry.target);
+            observer.unobserve(entry.target);
         });
-    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
-    revealTargets.forEach((el) => revealObserver.observe(el));
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    targets.forEach((el) => observer.observe(el));
 }
 
-// ---------- Entrance: the frame opens like a film gate ----------
+// ---------- Hero wordmark: "Latentiq" denoises out of noise on every load ----------
 
-function startPage() {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-        root.classList.add('is-loaded');
-        startReveals();
-    }));
-}
+function initWordmark() {
+    const h1 = document.getElementById('hero-wordmark');
+    const canvas = h1 && h1.querySelector('canvas');
+    const ctx = canvas && canvas.getContext('2d');
+    if (!ctx) return;
 
-// ---------- Intro: the wordmark denoises out of latent noise, once per visit ----------
+    const WORD = 'Latentiq';
+    const FONT = '"Bodoni Moda", Didot, "Bodoni 72", serif';
+    const INK = '#f2f0ed';
+    const TINTS = [[255, 74, 178], [155, 107, 255], [242, 240, 237]];
+    const STEPS = 30;
+    let box = null;
+    let done = false;
 
-function runIntro(done) {
-    const screen = document.getElementById('intro');
-    const canvas = document.getElementById('intro-canvas');
-    const stepLabel = document.getElementById('intro-step');
-    const skip = document.getElementById('intro-skip');
-    try { sessionStorage.setItem('lq-intro', '1'); } catch (e) {}
-
-    let finished = false;
-    function finish() {
-        if (finished) return;
-        finished = true;
-        screen.classList.add('is-leaving');
-        done();
-        setTimeout(() => {
-            root.classList.remove('intro');
-            screen.remove();
-        }, 900);
+    // Fit the word to the full width of the hero, using its real ink bounds
+    function measure() {
+        const probe = document.createElement('canvas').getContext('2d');
+        probe.font = `500 100px ${FONT}`;
+        const t = probe.measureText(WORD);
+        const inkWidth = t.actualBoundingBoxLeft + t.actualBoundingBoxRight;
+        const width = h1.clientWidth;
+        let k = width / inkWidth;
+        const tall = (t.actualBoundingBoxAscent + t.actualBoundingBoxDescent) * k;
+        const maxTall = window.innerHeight * 0.42;
+        if (tall > maxTall) k *= maxTall / tall;
+        return {
+            width,
+            height: Math.ceil((t.actualBoundingBoxAscent + t.actualBoundingBoxDescent) * k) + 2,
+            size: 100 * k,
+            left: t.actualBoundingBoxLeft * k,
+            ascent: t.actualBoundingBoxAscent * k,
+        };
     }
-    skip.addEventListener('click', finish);
-    window.addEventListener('keydown', finish, { once: true });
-    window.addEventListener('wheel', finish, { once: true, passive: true });
-    window.addEventListener('touchmove', finish, { once: true, passive: true });
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) { finish(); return; }
+    function drawWord(c, scale, blur) {
+        c.font = `500 ${box.size * scale}px ${FONT}`;
+        c.textBaseline = 'alphabetic';
+        if (blur && 'filter' in c) c.filter = `blur(${blur}px)`;
+        c.fillText(WORD, box.left * scale, (box.ascent + 1) * scale);
+        if ('filter' in c) c.filter = 'none';
+    }
+
+    function layout() {
+        box = measure();
+        h1.style.setProperty('--wm-h', `${box.height}px`);
+    }
+
+    function drawFinal() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(box.width * dpr);
+        canvas.height = Math.round(box.height * dpr);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = INK;
+        drawWord(ctx, dpr);
+    }
+
+    function animate() {
+        // Work at half resolution: the grain is the point, and it keeps each step cheap
+        const scale = 0.5;
+        const w = canvas.width = Math.max(2, Math.round(box.width * scale));
+        const h = canvas.height = Math.max(2, Math.round(box.height * scale));
+        const makeMask = (blur) => {
+            const m = document.createElement('canvas');
+            m.width = w; m.height = h;
+            const mc = m.getContext('2d');
+            mc.fillStyle = '#fff';
+            drawWord(mc, scale, blur);
+            return mc.getImageData(0, 0, w, h).data;
+        };
+        const soft = makeMask(Math.max(4, h * 0.08));
+        const sharp = makeMask(0);
+        const img = ctx.createImageData(w, h);
+        const px = img.data;
+        let step = 0;
+
+        function frame() {
+            const a = Math.pow(step / STEPS, 1.5);
+            for (let i = 0; i < px.length; i += 4) {
+                const m = (soft[i + 3] * (1 - a) + sharp[i + 3] * a) / 255;
+                if (m < 0.01) { px[i + 3] = 0; continue; }
+                const n = Math.random();
+                const r = Math.random();
+                const tint = r < 0.3 ? TINTS[0] : r < 0.55 ? TINTS[1] : TINTS[2];
+                const ink = a + (1 - a) * n;
+                px[i] = tint[0] + (242 - tint[0]) * a;
+                px[i + 1] = tint[1] + (240 - tint[1]) * a;
+                px[i + 2] = tint[2] + (237 - tint[2]) * a;
+                px[i + 3] = 255 * m * Math.min(1, ink * (0.35 + 0.65 * a) * 1.6);
+            }
+            ctx.putImageData(img, 0, 0);
+            if (step < STEPS) {
+                step++;
+                setTimeout(() => requestAnimationFrame(frame), 55);
+            } else {
+                done = true;
+                drawFinal();
+            }
+        }
+        frame();
+    }
 
     const fontReady = document.fonts
-        ? Promise.race([document.fonts.load('500 200px "Bodoni Moda"'), new Promise((r) => setTimeout(r, 1200))])
+        ? Promise.race([document.fonts.load(`500 100px ${FONT}`), new Promise((r) => setTimeout(r, 2500))])
         : Promise.resolve();
 
     fontReady.then(() => {
-        if (finished) return;
-        // Work at reduced resolution: the grain is the point, and it keeps each step cheap
-        const rect = canvas.getBoundingClientRect();
-        const w = canvas.width = Math.max(240, Math.round(rect.width / 2));
-        const h = canvas.height = Math.max(70, Math.round(rect.height / 2));
-
-        const mask = document.createElement('canvas');
-        mask.width = w; mask.height = h;
-        const m = mask.getContext('2d');
-        m.fillStyle = '#fff';
-        m.textAlign = 'center';
-        m.textBaseline = 'middle';
-        let size = h * 0.92;
-        m.font = `500 ${size}px "Bodoni Moda", Didot, serif`;
-        const measured = m.measureText('Latentiq').width;
-        if (measured > w * 0.94) { size *= (w * 0.94) / measured; m.font = `500 ${size}px "Bodoni Moda", Didot, serif`; }
-        m.fillText('Latentiq', w / 2, h * 0.52);
-        const target = m.getImageData(0, 0, w, h).data;
-
-        const img = ctx.createImageData(w, h);
-        const px = img.data;
-        const BG = [20, 20, 22], FG = [242, 240, 237];
-        const TINTS = [[255, 74, 178], [155, 107, 255], [242, 240, 237]];
-        const STEPS = 30, STEP_MS = 50;
-        let step = 0;
-
-        function draw() {
-            if (finished) return;
-            const a = Math.pow(step / STEPS, 1.6);
-            for (let i = 0; i < px.length; i += 4) {
-                const t = target[i + 3] / 255;
-                const n = Math.random();
-                const r = Math.random();
-                const tint = r < 0.25 ? TINTS[0] : r < 0.45 ? TINTS[1] : TINTS[2];
-                for (let c = 0; c < 3; c++) {
-                    const clean = BG[c] + (FG[c] - BG[c]) * t;
-                    const noise = BG[c] + (tint[c] - BG[c]) * n * 0.9;
-                    px[i + c] = clean * a + noise * (1 - a);
-                }
-                px[i + 3] = 255;
-            }
-            ctx.putImageData(img, 0, 0);
-            stepLabel.textContent = `step ${String(step).padStart(2, '0')} / ${STEPS}`;
-            if (step < STEPS) {
-                step++;
-                setTimeout(() => requestAnimationFrame(draw), STEP_MS);
-            } else {
-                screen.classList.add('is-resolved');
-                setTimeout(finish, 650);
-            }
+        layout();
+        h1.classList.add('is-canvas');
+        if (reducedMotion.matches) {
+            done = true;
+            drawFinal();
+            canvas.animate && canvas.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 700, easing: 'ease-out' });
+        } else {
+            setTimeout(animate, 250);
         }
-        draw();
-    });
-}
+    }).catch(() => h1.classList.remove('is-canvas'));
 
-if (root.classList.contains('intro') && document.getElementById('intro')) {
-    runIntro(startPage);
-} else {
-    root.classList.remove('intro');
-    startPage();
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (!done) return;
+            layout();
+            drawFinal();
+        }, 150);
+    });
 }
 
 // ---------- Showreel ----------
@@ -170,7 +198,6 @@ function updateFullscreenUI() {
     fullscreenIcon.classList.toggle('ph-corners-out', !isFullscreen);
     fullscreenIcon.classList.toggle('ph-corners-in', isFullscreen);
     heroFullscreenButton.setAttribute('aria-label', isFullscreen ? 'Exit fullscreen' : 'Play showreel fullscreen');
-    if (isFullscreen) heroFrame.style.transform = '';
 }
 
 function toggleFullscreen() {
@@ -182,25 +209,29 @@ function toggleFullscreen() {
     }
 }
 
+// The click is the one moment browsers allow sound, so open the reel properly
+function watchReel() {
+    if (heroPlayer && heroPlayer.seekTo) {
+        heroPlayer.seekTo(0, true);
+        heroPlayer.playVideo();
+    }
+    setHeroMuted(false);
+    if (!getFullscreenElement()) toggleFullscreen();
+}
+
 if (heroFullscreenButton && heroFrame) {
     heroFullscreenButton.addEventListener('click', toggleFullscreen);
     document.addEventListener('fullscreenchange', updateFullscreenUI);
     document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
 }
 
-// "Watch the reel": the click is the one moment browsers allow sound, so open it properly
 const watchReelButton = document.getElementById('watch-reel');
-if (watchReelButton && heroFrame) {
-    watchReelButton.addEventListener('click', () => {
-        if (heroPlayer && heroPlayer.seekTo) {
-            heroPlayer.seekTo(0, true);
-            heroPlayer.playVideo();
-        }
-        setHeroMuted(false);
-        if (!getFullscreenElement()) toggleFullscreen();
-        if (!heroFrame.requestFullscreen && !heroFrame.webkitRequestFullscreen) {
-            heroFrame.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'center' });
-        }
+if (watchReelButton) watchReelButton.addEventListener('click', watchReel);
+
+if (heroFrame) {
+    heroFrame.addEventListener('click', (e) => {
+        if (e.target.closest('button') || getFullscreenElement()) return;
+        watchReel();
     });
 }
 
@@ -243,26 +274,155 @@ if (navLinks.length) {
     document.fonts && document.fonts.ready.then(() => moveIndicator(activeLink));
 }
 
-// ---------- Scroll: the frame settles back as the page takes over ----------
+// ---------- Services: the sticky stage follows the service in view ----------
 
-let scrollPending = false;
-function updateScroll() {
-    scrollPending = false;
-    if (!heroFrame || getFullscreenElement()) return;
-    const progress = Math.min(window.scrollY / window.innerHeight, 1);
-    heroFrame.style.transform = progress > 0 ? `scale(${1 - progress * 0.05})` : '';
-    heroFrame.style.opacity = String(1 - progress * 0.45);
+function initServices() {
+    const grid = document.querySelector('.services-grid');
+    const stage = document.getElementById('services-stage');
+    const services = [...document.querySelectorAll('.service')];
+    if (!grid || !stage || !services.length) return;
+    let current = 0;
+
+    function show(i) {
+        current = i;
+        services.forEach((s, k) => s.classList.toggle('is-active', k === i));
+        [...stage.children].forEach((item, k) => item.classList.toggle('is-active', k === i));
+    }
+
+    function build() {
+        if (wide.matches && !stage.childElementCount) {
+            services.forEach((service) => {
+                const visual = service.querySelector('.service-visual');
+                const item = document.createElement('div');
+                item.className = 'stage-item';
+                item.innerHTML = visual ? visual.innerHTML : '';
+                stage.appendChild(item);
+            });
+        }
+        grid.classList.toggle('is-staged', wide.matches);
+        show(current);
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) show(services.indexOf(entry.target));
+        });
+    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+    services.forEach((s) => observer.observe(s));
+    wide.addEventListener('change', build);
+    build();
 }
 
-window.addEventListener('scroll', () => {
-    if (reducedMotion.matches || scrollPending) return;
-    scrollPending = true;
-    requestAnimationFrame(updateScroll);
-}, { passive: true });
+// ---------- Smooth scroll and scroll-linked motion ----------
+
+function initSmoothScroll() {
+    if (reducedMotion.matches || !window.Lenis) return null;
+    const lenis = new window.Lenis({ lerp: 0.09, anchors: { offset: -80 }, autoRaf: !hasGsap() });
+    if (hasGsap()) {
+        lenis.on('scroll', window.ScrollTrigger.update);
+        window.gsap.ticker.add((time) => lenis.raf(time * 1000));
+        window.gsap.ticker.lagSmoothing(0);
+    }
+    return lenis;
+}
+
+function splitWords(el) {
+    const words = el.textContent.trim().split(/\s+/);
+    el.textContent = '';
+    return words.map((word, i) => {
+        const span = document.createElement('span');
+        span.className = 'w';
+        span.textContent = word;
+        el.appendChild(span);
+        if (i < words.length - 1) el.appendChild(document.createTextNode(' '));
+        return span;
+    });
+}
+
+function initScrollMotion() {
+    if (!hasGsap() || reducedMotion.matches) return;
+    const { gsap, ScrollTrigger } = window;
+    gsap.registerPlugin(ScrollTrigger);
+
+    // The reel recedes into a framed card as the page takes over
+    if (heroFrame) {
+        gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } })
+            .to(heroFrame, { scale: 0.86, borderRadius: 28, ease: 'none' }, 0)
+            .to('.hero-content', { yPercent: -18, ease: 'none' }, 0)
+            .to('.hero-content', { opacity: 0, ease: 'none', duration: 0.45 }, 0);
+        document.addEventListener('fullscreenchange', () => {
+            gsap.set(heroFrame, getFullscreenElement() ? { clearProps: 'transform,borderRadius' } : {});
+            ScrollTrigger.refresh();
+        });
+    }
+
+    // The statement lights up word by word as it is read
+    const statement = document.getElementById('statement');
+    if (statement) {
+        const words = splitWords(statement);
+        gsap.fromTo(words, { opacity: 0.16 }, {
+            opacity: 1, ease: 'none', stagger: 0.1,
+            scrollTrigger: { trigger: statement, start: 'top 80%', end: 'bottom 45%', scrub: true },
+        });
+    }
+
+    // The services marquee runs faster while the page is moving
+    const track = document.querySelector('.marquee-track');
+    if (track) {
+        track.style.animation = 'none';
+        const loop = gsap.to(track, { xPercent: -50, repeat: -1, ease: 'none', duration: 48 });
+        let boost = 0;
+        ScrollTrigger.create({ onUpdate: (self) => { boost = Math.min(Math.abs(self.getVelocity()) / 250, 6); } });
+        gsap.ticker.add(() => {
+            loop.timeScale(loop.timeScale() + (1 + boost - loop.timeScale()) * 0.08);
+            boost *= 0.92;
+        });
+    }
+
+    // The closing line drifts up slightly slower than the page
+    gsap.fromTo('.closing-title', { yPercent: 20 }, {
+        yPercent: -10, ease: 'none',
+        scrollTrigger: { trigger: '.closing', start: 'top bottom', end: 'bottom top', scrub: true },
+    });
+}
+
+// ---------- Cursor label: "Play reel" over the showreel ----------
+
+function initCursorLabel() {
+    const label = document.getElementById('cursor-label');
+    if (!label || !finePointer.matches) return;
+    const text = label.firstElementChild;
+    let x = -200, y = -200, tx = -200, ty = -200, running = false;
+
+    function step() {
+        x += (tx - x) * 0.22;
+        y += (ty - y) * 0.22;
+        label.style.setProperty('--cx', `${x.toFixed(1)}px`);
+        label.style.setProperty('--cy', `${y.toFixed(1)}px`);
+        running = Math.abs(tx - x) > 0.2 || Math.abs(ty - y) > 0.2;
+        if (running) requestAnimationFrame(step);
+    }
+
+    document.addEventListener('pointermove', (e) => {
+        tx = e.clientX;
+        ty = e.clientY;
+        const host = e.target.closest('[data-cursor]');
+        const on = Boolean(host) && !e.target.closest('button, a') && !getFullscreenElement();
+        if (on && text.dataset.label !== host.dataset.cursor) {
+            text.dataset.label = host.dataset.cursor;
+            text.innerHTML = `<i class="ph-fill ph-play" aria-hidden="true"></i>${host.dataset.cursor}`;
+        }
+        if (on && !label.classList.contains('is-on')) { x = tx; y = ty; }
+        label.classList.toggle('is-on', on);
+        if (!running) { running = true; requestAnimationFrame(step); }
+    }, { passive: true });
+    document.addEventListener('pointerleave', () => label.classList.remove('is-on'));
+}
 
 // ---------- Ambient light: eases toward the pointer, desktop only ----------
 
-if (ambient && finePointer.matches && !reducedMotion.matches) {
+function initAmbient() {
+    if (!ambient || !finePointer.matches || reducedMotion.matches) return;
     let tx = 70, ty = 10, cx = 70, cy = 10, running = false;
     const step = () => {
         cx += (tx - cx) * 0.045;
@@ -281,3 +441,14 @@ if (ambient && finePointer.matches && !reducedMotion.matches) {
         }
     }, { passive: true });
 }
+
+// ---------- Start ----------
+
+requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('is-loaded')));
+startReveals();
+initWordmark();
+initServices();
+initSmoothScroll();
+initScrollMotion();
+initCursorLabel();
+initAmbient();
