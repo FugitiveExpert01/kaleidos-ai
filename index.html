@@ -45,11 +45,26 @@
         (function (d) {
             if (!('IntersectionObserver' in window)) return;
             d.classList.add('motion');
-            setTimeout(function () { if (!d.classList.contains('is-loaded')) d.classList.remove('motion'); }, 4000);
+            var intro = false;
+            try { intro = !sessionStorage.getItem('lq-intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+            if (intro) d.classList.add('intro');
+            setTimeout(function () {
+                if (d.classList.contains('is-loaded')) return;
+                d.classList.remove('motion', 'intro');
+            }, intro ? 7000 : 4000);
         })(document.documentElement);
     </script>
 </head>
 <body>
+    <div class="intro-screen" id="intro" role="presentation">
+        <div class="intro-stage">
+            <canvas class="intro-canvas" id="intro-canvas" aria-hidden="true"></canvas>
+            <p class="intro-word" aria-hidden="true">Latentiq</p>
+        </div>
+        <p class="intro-meta" aria-hidden="true"><span id="intro-step">step 00 / 30</span><span>seed 2026</span><span>sampler euler</span></p>
+        <button type="button" class="intro-skip" id="intro-skip">Skip intro</button>
+    </div>
+
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="ambient" aria-hidden="true"></div>
     <div class="grain" aria-hidden="true"></div>
@@ -58,6 +73,7 @@
         <div class="nav-track" id="nav-track">
             <span class="nav-indicator" id="nav-indicator" aria-hidden="true"></span>
             <a href="#home" class="nav-link">Showreel</a>
+            <a href="#work" class="nav-link">Work</a>
             <a href="#comfy-workflow" class="nav-link">Architecture</a>
             <a href="#lora" class="nav-link">Training</a>
             <a href="#tools" class="nav-link">Custom Nodes</a>
@@ -98,6 +114,118 @@
     </header>
 
     <main id="main" class="page">
+
+        <section id="work" class="section work" aria-labelledby="work-title">
+            <div class="container">
+                <div class="work-head">
+                    <h2 class="headline" id="work-title" data-reveal>
+                        <span class="line"><span>Made in</span></span>
+                        <span class="line"><span><em>latent space</em></span></span>
+                    </h2>
+                    <p class="lead" data-reveal style="--d: 2">Experiments, tools and pipelines from the studio. Every piece on this board runs live in your browser or comes straight out of our own software.</p>
+                </div>
+
+                <div class="collage" id="collage">
+                    <figure class="tile tile--latent" data-depth="-0.04">
+                        <canvas id="latent-canvas" aria-label="A field of points drifting between shapes, rendered live with WebGL"></canvas>
+                        <figcaption class="chip-glass chip--tl"><span class="chip-title">Latent field</span><span class="chip-meta" id="latent-meta">24,000 points &middot; WebGL</span></figcaption>
+                    </figure>
+
+                    <figure class="tile tile--demo" data-depth="0.06">
+                        <video id="demo-video" muted loop playsinline preload="none" poster="assets/demo-poster.jpg" aria-label="3D2AI generating an image from a Blender scene">
+                            <source src="Demo.webm" type="video/webm">
+                            <source src="Demo.mp4" type="video/mp4">
+                        </video>
+                        <figcaption class="chip-glass chip--br"><a href="3D2AI.html" class="chip-link"><span class="chip-title">3D2AI for Blender</span><span class="chip-meta">Prompt to image inside the viewport</span><i class="ph ph-arrow-up-right" aria-hidden="true"></i></a></figcaption>
+                    </figure>
+
+                    <figure class="tile tile--nodes" data-depth="0.1">
+                        <svg class="node-graph" viewBox="0 0 640 400" role="img" aria-label="A ComfyUI workflow: checkpoint and prompt feed a KSampler, which is decoded and saved">
+                            <g class="edges">
+                                <path class="edge e-model" d="M178 92 C 250 92, 290 150, 362 150"/>
+                                <path class="edge e-cond" d="M178 236 C 260 236, 280 182, 362 182"/>
+                                <path class="edge e-latent" d="M178 330 C 270 330, 280 214, 362 214"/>
+                                <path class="edge e-out" d="M522 182 C 560 182, 560 300, 600 300" />
+                                <path class="edge flow e-model" d="M178 92 C 250 92, 290 150, 362 150"/>
+                                <path class="edge flow e-cond" d="M178 236 C 260 236, 280 182, 362 182"/>
+                                <path class="edge flow e-latent" d="M178 330 C 270 330, 280 214, 362 214"/>
+                                <path class="edge flow e-out" d="M522 182 C 560 182, 560 300, 600 300" />
+                            </g>
+                            <g class="node" transform="translate(24 52)">
+                                <rect class="node-body" width="154" height="80" rx="10"/>
+                                <rect class="node-head n-violet" width="154" height="24" rx="10"/><rect class="node-head n-violet" y="14" width="154" height="10"/>
+                                <text class="node-title" x="12" y="16">Load Checkpoint</text>
+                                <text class="node-port" x="12" y="46">ckpt_name</text>
+                                <text class="node-port node-port--out" x="142" y="46">MODEL</text>
+                                <circle class="port" cx="154" cy="40" r="4"/>
+                            </g>
+                            <g class="node" transform="translate(24 196)">
+                                <rect class="node-body" width="154" height="80" rx="10"/>
+                                <rect class="node-head n-pink" width="154" height="24" rx="10"/><rect class="node-head n-pink" y="14" width="154" height="10"/>
+                                <text class="node-title" x="12" y="16">CLIP Text Encode</text>
+                                <text class="node-port" x="12" y="46">&#8220;foggy chapel,</text>
+                                <text class="node-port" x="12" y="62">film grain&#8221;</text>
+                                <circle class="port" cx="154" cy="40" r="4"/>
+                            </g>
+                            <g class="node" transform="translate(24 300)">
+                                <rect class="node-body" width="154" height="60" rx="10"/>
+                                <rect class="node-head n-cyan" width="154" height="24" rx="10"/><rect class="node-head n-cyan" y="14" width="154" height="10"/>
+                                <text class="node-title" x="12" y="16">Empty Latent</text>
+                                <text class="node-port" x="12" y="46">1280 &#215; 720</text>
+                                <circle class="port" cx="154" cy="30" r="4"/>
+                            </g>
+                            <g class="node node--active" transform="translate(362 120)">
+                                <rect class="node-body" width="160" height="128" rx="10"/>
+                                <rect class="node-head n-brand" width="160" height="24" rx="10"/><rect class="node-head n-brand" y="14" width="160" height="10"/>
+                                <text class="node-title" x="12" y="16">KSampler</text>
+                                <text class="node-port" x="12" y="48">seed 2026</text>
+                                <text class="node-port" x="12" y="66">steps 30 &#183; cfg 7.0</text>
+                                <text class="node-port" x="12" y="84">dpmpp_2m &#183; karras</text>
+                                <rect class="progress-track" x="12" y="104" width="136" height="6" rx="3"/>
+                                <rect class="progress-bar" x="12" y="104" width="136" height="6" rx="3"/>
+                            </g>
+                            <g class="node" transform="translate(548 270)">
+                                <circle class="node-out" cx="52" cy="30" r="22"/>
+                                <text class="node-port" x="30" y="72">Save Image</text>
+                            </g>
+                        </svg>
+                        <figcaption class="chip-glass chip--tr"><span class="chip-title">workflow.json</span><span class="chip-meta">ComfyUI &middot; 6 nodes</span></figcaption>
+                    </figure>
+
+                    <figure class="tile tile--wipe" data-depth="0.02">
+                        <img src="assets/before.webp" alt="3D2AI render: a moss-covered chapel in a foggy pine forest" width="771" height="434" loading="lazy" decoding="async">
+                        <img class="wipe-top" src="assets/after.webp" alt="The same chapel as a grey clay model in the Blender viewport" width="771" height="434" loading="lazy" decoding="async">
+                        <span class="wipe-line" aria-hidden="true"></span>
+                        <figcaption class="chip-glass chip--bl"><span class="chip-title">Clay to render</span><span class="chip-meta">One Blender scene, one prompt</span></figcaption>
+                    </figure>
+
+                    <figure class="tile tile--denoise" data-depth="0.14">
+                        <canvas id="denoise-canvas" width="240" height="150" aria-label="An image of a sunset over mountains resolving out of noise, step by step"></canvas>
+                        <figcaption class="chip-glass chip--tl"><span class="chip-title">Denoising</span><span class="chip-meta" id="denoise-step">step 00 / 30</span></figcaption>
+                    </figure>
+
+                    <span class="tag" style="--tx: 61%; --ty: 3%">seed 2026</span>
+                    <span class="tag" style="--tx: 2%; --ty: 55%">cfg 7.0 &middot; steps 30</span>
+                    <span class="tag tag--brand" style="--tx: 44%; --ty: 58%">01:00:12:04</span>
+                    <span class="tag" style="--tx: 52%; --ty: 47%">vae_decode</span>
+                    <span class="tag" style="--tx: 30%; --ty: 97%">lora_strength 0.8</span>
+                </div>
+            </div>
+
+            <div class="proof" aria-label="What we work with">
+                <div class="marquee" aria-hidden="true">
+                    <div class="marquee-track">
+                        <span>ComfyUI pipeline architecture</span><span>LoRA model training</span><span>Open-source ComfyUI nodes</span><span>3D2AI for Blender</span><span>Cinematic AI production</span>
+                        <span>ComfyUI pipeline architecture</span><span>LoRA model training</span><span>Open-source ComfyUI nodes</span><span>3D2AI for Blender</span><span>Cinematic AI production</span>
+                    </div>
+                </div>
+                <div class="container proof-links">
+                    <a href="https://github.com/FugitiveExpert01/ComfyUI-FEnodes" target="_blank" rel="noopener noreferrer" class="pill-glass"><i class="ph ph-github-logo" aria-hidden="true"></i>Node library on GitHub<i class="ph ph-arrow-up-right" aria-hidden="true"></i></a>
+                    <a href="3D2AI.html" class="pill-glass"><i class="ph ph-cube" aria-hidden="true"></i>3D2AI for Blender<i class="ph ph-arrow-right" aria-hidden="true"></i></a>
+                    <a href="documentation.html" class="pill-glass"><i class="ph ph-book-open" aria-hidden="true"></i>Documentation<i class="ph ph-arrow-right" aria-hidden="true"></i></a>
+                </div>
+            </div>
+        </section>
 
         <section id="comfy-workflow" class="section">
             <div class="container split">
@@ -237,6 +365,7 @@
     </footer>
 
     <script src="js/script.js" defer></script>
+    <script src="js/collage.js" type="module"></script>
     <script src="https://www.youtube.com/iframe_api" defer></script>
 </body>
 </html>

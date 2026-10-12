@@ -11,14 +11,14 @@ const navIndicator = document.getElementById('nav-indicator');
 const navLinks = navTrack ? [...navTrack.querySelectorAll('.nav-link[href^="#"]')] : [];
 const ambient = document.querySelector('.ambient');
 
-// ---------- Entrance: the frame opens like a film gate ----------
-
-requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('is-loaded')));
-
 // ---------- Reveals: run once, never hide content again ----------
 
-const revealTargets = document.querySelectorAll('[data-reveal]');
-if ('IntersectionObserver' in window) {
+function startReveals() {
+    const revealTargets = document.querySelectorAll('[data-reveal]');
+    if (!('IntersectionObserver' in window)) {
+        revealTargets.forEach((el) => el.classList.add('is-revealed'));
+        return;
+    }
     const revealObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
             if (!entry.isIntersecting) return;
@@ -27,8 +27,110 @@ if ('IntersectionObserver' in window) {
         });
     }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
     revealTargets.forEach((el) => revealObserver.observe(el));
+}
+
+// ---------- Entrance: the frame opens like a film gate ----------
+
+function startPage() {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        root.classList.add('is-loaded');
+        startReveals();
+    }));
+}
+
+// ---------- Intro: the wordmark denoises out of latent noise, once per visit ----------
+
+function runIntro(done) {
+    const screen = document.getElementById('intro');
+    const canvas = document.getElementById('intro-canvas');
+    const stepLabel = document.getElementById('intro-step');
+    const skip = document.getElementById('intro-skip');
+    try { sessionStorage.setItem('lq-intro', '1'); } catch (e) {}
+
+    let finished = false;
+    function finish() {
+        if (finished) return;
+        finished = true;
+        screen.classList.add('is-leaving');
+        done();
+        setTimeout(() => {
+            root.classList.remove('intro');
+            screen.remove();
+        }, 900);
+    }
+    skip.addEventListener('click', finish);
+    window.addEventListener('keydown', finish, { once: true });
+    window.addEventListener('wheel', finish, { once: true, passive: true });
+    window.addEventListener('touchmove', finish, { once: true, passive: true });
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) { finish(); return; }
+
+    const fontReady = document.fonts
+        ? Promise.race([document.fonts.load('500 200px "Bodoni Moda"'), new Promise((r) => setTimeout(r, 1200))])
+        : Promise.resolve();
+
+    fontReady.then(() => {
+        if (finished) return;
+        // Work at reduced resolution: the grain is the point, and it keeps each step cheap
+        const rect = canvas.getBoundingClientRect();
+        const w = canvas.width = Math.max(240, Math.round(rect.width / 2));
+        const h = canvas.height = Math.max(70, Math.round(rect.height / 2));
+
+        const mask = document.createElement('canvas');
+        mask.width = w; mask.height = h;
+        const m = mask.getContext('2d');
+        m.fillStyle = '#fff';
+        m.textAlign = 'center';
+        m.textBaseline = 'middle';
+        let size = h * 0.92;
+        m.font = `500 ${size}px "Bodoni Moda", Didot, serif`;
+        const measured = m.measureText('Latentiq').width;
+        if (measured > w * 0.94) { size *= (w * 0.94) / measured; m.font = `500 ${size}px "Bodoni Moda", Didot, serif`; }
+        m.fillText('Latentiq', w / 2, h * 0.52);
+        const target = m.getImageData(0, 0, w, h).data;
+
+        const img = ctx.createImageData(w, h);
+        const px = img.data;
+        const BG = [20, 20, 22], FG = [242, 240, 237];
+        const TINTS = [[255, 74, 178], [155, 107, 255], [242, 240, 237]];
+        const STEPS = 30, STEP_MS = 50;
+        let step = 0;
+
+        function draw() {
+            if (finished) return;
+            const a = Math.pow(step / STEPS, 1.6);
+            for (let i = 0; i < px.length; i += 4) {
+                const t = target[i + 3] / 255;
+                const n = Math.random();
+                const r = Math.random();
+                const tint = r < 0.25 ? TINTS[0] : r < 0.45 ? TINTS[1] : TINTS[2];
+                for (let c = 0; c < 3; c++) {
+                    const clean = BG[c] + (FG[c] - BG[c]) * t;
+                    const noise = BG[c] + (tint[c] - BG[c]) * n * 0.9;
+                    px[i + c] = clean * a + noise * (1 - a);
+                }
+                px[i + 3] = 255;
+            }
+            ctx.putImageData(img, 0, 0);
+            stepLabel.textContent = `step ${String(step).padStart(2, '0')} / ${STEPS}`;
+            if (step < STEPS) {
+                step++;
+                setTimeout(() => requestAnimationFrame(draw), STEP_MS);
+            } else {
+                screen.classList.add('is-resolved');
+                setTimeout(finish, 650);
+            }
+        }
+        draw();
+    });
+}
+
+if (root.classList.contains('intro') && document.getElementById('intro')) {
+    runIntro(startPage);
 } else {
-    revealTargets.forEach((el) => el.classList.add('is-revealed'));
+    root.classList.remove('intro');
+    startPage();
 }
 
 // ---------- Showreel ----------
