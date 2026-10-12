@@ -20,6 +20,8 @@ Notes:
 
 ## Decisions so far
 
+- **Positioning: AI-first production studio for commercials and brand films.** The work leads; pipelines, custom models, ComfyUI nodes and 3D2AI sit behind the scenes as "How we make it". Copy makes no claims about clients, numbers or turnaround times.
+- **Homepage order:** full-screen reel with denoising wordmark, statement, What we make (Commercials, Brand films), How we make it (Develop, Train, Generate, Finish, then the live collage and proof links), About, closing call to action.
 - **3D2AI stays separate.** `3D2AI.html` and `documentation.html` keep their own look for now; the main-site system covers `index.html` and `contact.html` only.
 - **Tone: lifted charcoal.** Base `#141416`, raised `#1b1b1e`, text `#f2f0ed` / `#a8a5a0` / `#8a8783` (all AA on the base), pink `#FF4AB2` used sparingly, static warm film grain.
 - **Type: editorial pairing.** Bodoni Moda (display) + Jost (body/UI), JetBrains Mono for code only. Italic is reserved for the two bookends: the "Latentiq *Studio*" wordmark and "*Let's create.*".
